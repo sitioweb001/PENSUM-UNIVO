@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="es" id="htmlRoot" data-theme="light">
 <head>
@@ -181,16 +182,35 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
 .cycle-top-bar{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-bottom:20px;}
 .back-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;background:var(--card);border:1px solid var(--gl);border-radius:8px;color:var(--blue-text);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
 .back-btn:hover{background:var(--blue);color:#fff;}
+
 .cycle-done-btn{
-  padding:9px 18px;border-radius:999px;border:2px solid var(--pass);
-  background:transparent;color:var(--pass);font-weight:700;cursor:pointer;
-  font-size:13px;transition:all .2s;display:flex;align-items:center;gap:7px;
+  padding:9px 18px;
+  border-radius:999px;
+  border:2px solid var(--pass);
+  background:transparent;
+  color:var(--pass);
+  font-weight:700;
+  cursor:pointer;
+  font-size:13px;
+  transition:all .2s;
+  display:flex;
+  align-items:center;
+  gap:7px;
 }
-.cycle-done-btn:hover{background:var(--pass);color:#fff;}
-.cycle-done-btn.done{background:var(--pass);color:#fff;}
-.cycle-done-btn.done:hover{background:#dc2626;border-color:#dc2626;color:#fff;}
-.cycle-done-btn.done{background:var(--pass);color:#fff;}
-.cycle-done-btn:hover{opacity:.82;}
+.cycle-done-btn:hover:not(.done){
+  background:var(--pass);
+  color:#fff;
+}
+.cycle-done-btn.done{
+  background:#10b981;
+  color:#fff;
+  border-color:#10b981;
+}
+.cycle-done-btn.done:hover{
+  background:#dc2626;
+  border-color:#dc2626;
+}
+
 .clear-cycle-btn{margin-left:auto;padding:7px 14px;background:var(--fail);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px;transition:all .15s;}
 .cycle-detail-header{margin-bottom:22px;}
 .cycle-detail-header h2{font-size:24px;font-weight:800;color:var(--blue-text-dk);}
@@ -1832,28 +1852,48 @@ function renderPensum(){
     col.className='cycle-col';
     col.dataset.cycleId=cycle.id;
 
-    const isDone=!!(sd.cyclesDone&&sd.cyclesDone[cycle.id]);
-    const lbl=document.createElement('div');
-    lbl.className='cycle-header-box'+(isDone?' done-cycle':'');
-    lbl.innerHTML=(isDone?'✅ ':'')+cycle.name.toUpperCase();
-    lbl.onclick=()=>openCycle(cycle.id);
-    col.appendChild(lbl);
+const isDone=!!(sd.cyclesDone&&sd.cyclesDone[cycle.id]);
+const lbl=document.createElement('div');
+lbl.className='cycle-header-box'+(isDone?' done-cycle':'');
+lbl.innerHTML=(isDone?'✅ ':'')+cycle.name.toUpperCase();
+lbl.onclick=()=>openCycle(cycle.id);
+// 🔥 Forzar estilo inline para asegurar color
+if(isDone) {
+  lbl.style.background = '#047857';
+  lbl.style.borderColor = '#047857';
+  lbl.style.color = '#fff';
+} else {
+  lbl.style.background = 'var(--blue)';
+  lbl.style.borderColor = 'var(--blue)';
+}
+col.appendChild(lbl);
 
     cycle.subjects.forEach(sub=>{
-      const subData=getSubjectData(sub.num);
-      const grade=getEffectiveGrade(subData);
-      const status=getEffectiveStatus(subData);
-      const isSpecial=!!(sd.specialCards&&sd.specialCards[sub.num]);
-      const progress=grade!==null?Math.round((grade/10)*100):0;
+  const subData=getSubjectData(sub.num);
+  const grade=getEffectiveGrade(subData);
+  const status=getEffectiveStatus(subData);
+  const isSpecial=!!(sd.specialCards&&sd.specialCards[sub.num]);
+  const progress=grade!==null?Math.round((grade/10)*100):0;
+  const isCycleDone = !!(sd.cyclesDone && sd.cyclesDone[cycle.id]);
 
-      const card=document.createElement('div');
-      card.className='subject-card'+(isSpecial?' status-special':'')+(grade===null&&status==='pending'&&!isSpecial?' no-grade':'');
-      card.dataset.num=sub.num;
-      card.dataset.cycleId=cycle.id;
-      if(grade!==null&&!isSpecial) card.style.background=`linear-gradient(to right,rgba(16,185,129,.42) ${progress}%,rgba(239,68,68,.35) ${progress}%)`;
-      else if(status==='pass'&&!isSpecial) card.style.background='rgba(16,185,129,.35)';
-      else if(status==='fail'&&!isSpecial) card.style.background='rgba(239,68,68,.25)';
-      else if(status==='inprogress'&&!isSpecial) card.style.background='rgba(251,191,36,.25)';
+  const card=document.createElement('div');
+  card.className='subject-card'+(isSpecial?' status-special':'')+(grade===null&&status==='pending'&&!isSpecial?' no-grade':'');
+  card.dataset.num=sub.num;
+  card.dataset.cycleId=cycle.id;
+  
+  // 🔥 SI EL CICLO ESTÁ FINALIZADO → FONDO VERDE FIJO
+  if(isCycleDone) {
+    card.style.background = 'rgba(16,185,129,.20)';
+    card.style.borderColor = 'var(--pass)';
+  } else if(grade!==null&&!isSpecial) {
+    card.style.background=`linear-gradient(to right,rgba(16,185,129,.42) ${progress}%,rgba(239,68,68,.35) ${progress}%)`;
+  } else if(status==='pass'&&!isSpecial) {
+    card.style.background='rgba(16,185,129,.35)';
+  } else if(status==='fail'&&!isSpecial) {
+    card.style.background='rgba(239,68,68,.25)';
+  } else if(status==='inprogress'&&!isSpecial) {
+    card.style.background='rgba(251,191,36,.25)';
+  }
 
       // CTRL+2CLICS = poner/quitar 6.0
       // CTRL+SHIFT+CLIC = marcar especial (amarillo)
@@ -2069,6 +2109,17 @@ function updateCycleDoneBtn(){
   document.getElementById('cycleDoneIcon').textContent=done?'✅':'☐';
   document.getElementById('cycleDoneText').textContent=done?'✓ Finalizado — clic para deshacer':'Marcar finalizado';
   if(btn) btn.title=done?'Clic para desmarcar este ciclo':'Marcar este ciclo como finalizado';
+  
+  // 🔥 FORZAR ESTILO DEL BOTÓN
+  if(done) {
+    btn.style.background = '#10b981';
+    btn.style.color = '#fff';
+    btn.style.borderColor = '#10b981';
+  } else {
+    btn.style.background = 'transparent';
+    btn.style.color = '#10b981';
+    btn.style.borderColor = '#10b981';
+  }
 }
 
 function openCycle(id,highlightNum=null){
