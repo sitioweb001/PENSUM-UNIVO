@@ -8,36 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS LIGHT ── */
-/* ── LOGO FALLBACKS ── */
-.logo-fallback {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:900;
-  font-size:22px;
-  color:#d4a017;
-  background:var(--card);
-  border-radius:12px;
-  padding:4px 14px;
-  border:2px solid var(--blue);
-  min-width:60px;
-  min-height:56px;
-}
-.logo-fallback-sm {
-  font-size:18px;
-  padding:2px 12px;
-  min-height:42px;
-}
-.logo-fallback-light {
-  color:#fff;
-  background:#1e3a5f;
-  border-color:#d4a017;
-}
-.logo-fallback-asist {
-  font-size:16px;
-  padding:6px 14px;
-  min-height:48px;
-}
 :root {
   /* UNIVO: dorado como color principal (fondos/acentos), azul marino para texto legible, blanco de base */
   --blue:#d4a017;--blue-dk:#b8860b;--blue-lt:#f0c14b;
@@ -75,7 +45,7 @@ body.printing #printArea{display:block!important;position:fixed;inset:0;z-index:
 #loginView{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue-dk),var(--blue));display:flex;align-items:center;justify-content:center;z-index:1000;}
 .login-box{background:var(--modal-bg);border-radius:20px;padding:38px;width:420px;max-width:93vw;box-shadow:0 32px 80px rgba(0,0,0,.3);}
 .login-logo-wrap{text-align:center;margin-bottom:18px;}
-.login-logo-wrap img{max-width:180px;max-height:64px;object-fit:contain;}
+.login-logo-wrap img{max-width:230px;max-height:88px;object-fit:contain;}
 .login-box h2{font-size:22px;font-weight:800;color:var(--blue-text-dk);margin-bottom:6px;text-align:center;}
 [data-theme="dark"] .login-box h2{color:var(--blue-lt);}
 .login-box p{color:var(--gm);font-size:13px;text-align:center;margin-bottom:20px;}
@@ -180,35 +150,16 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
 .cycle-top-bar{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-bottom:20px;}
 .back-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;background:var(--card);border:1px solid var(--gl);border-radius:8px;color:var(--blue-text);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
 .back-btn:hover{background:var(--blue);color:#fff;}
-
 .cycle-done-btn{
-  padding:9px 18px;
-  border-radius:999px;
-  border:2px solid var(--pass);
-  background:transparent;
-  color:var(--pass);
-  font-weight:700;
-  cursor:pointer;
-  font-size:13px;
-  transition:all .2s;
-  display:flex;
-  align-items:center;
-  gap:7px;
+  padding:9px 18px;border-radius:999px;border:2px solid var(--pass);
+  background:transparent;color:var(--pass);font-weight:700;cursor:pointer;
+  font-size:13px;transition:all .2s;display:flex;align-items:center;gap:7px;
 }
-.cycle-done-btn:hover:not(.done){
-  background:var(--pass);
-  color:#fff;
-}
-.cycle-done-btn.done{
-  background:#10b981;
-  color:#fff;
-  border-color:#10b981;
-}
-.cycle-done-btn.done:hover{
-  background:#dc2626;
-  border-color:#dc2626;
-}
-
+.cycle-done-btn:hover{background:var(--pass);color:#fff;}
+.cycle-done-btn.done{background:var(--pass);color:#fff;}
+.cycle-done-btn.done:hover{background:#dc2626;border-color:#dc2626;color:#fff;}
+.cycle-done-btn.done{background:var(--pass);color:#fff;}
+.cycle-done-btn:hover{opacity:.82;}
 .clear-cycle-btn{margin-left:auto;padding:7px 14px;background:var(--fail);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px;transition:all .15s;}
 .cycle-detail-header{margin-bottom:22px;}
 .cycle-detail-header h2{font-size:24px;font-weight:800;color:var(--blue-text-dk);}
@@ -329,11 +280,7 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
 <div id="loginView">
 <div class="login-box">
   <div class="login-logo-wrap">
-<div class="asist-logos" id="asistLogoWrap">
-  <img src="univo.png" alt="UNIVO" style="width:70px; height:70px; border-radius:50%; object-fit:cover; box-shadow:0 2px 10px rgba(0,0,0,0.15);" onerror="this.style.display='none'; document.getElementById('asistLogoWrap').innerHTML = '<span style=\'font-weight:900;font-size:26px;color:#d4a017;background:#1e3a5f;padding:6px;border-radius:50%;display:inline-block;width:70px;height:70px;text-align:center;line-height:58px;\'>U</span><div style=\'width:1px;height:46px;background:var(--gl);margin:0 16px;\'></div><span style=\'font-size:11px;color:var(--gm);max-width:80px;text-align:center;\'>Dir. Académica UNIVO</span>'">
-  <div style="width:1px;height:46px;background:var(--gl);"></div>
-  <img src="logo2.jpg" alt="Dir. Académica" onerror="this.outerHTML='<span style=\'font-size:11px;color:var(--gm);max-width:80px;text-align:center;\'>Dir. Académica UNIVO</span>'">
-</div>
+    <img src="univo.png" alt="UNIVO" onerror="this.parentElement.innerHTML='<div style=\'width:90px;height:90px;border-radius:24px;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:900;margin:0 auto 18px\'>UNIVO</div>'">
   </div>
   <h2>Pénsum UNIVO</h2>
   <p id="loginSubtitle">Ingresa nombre del estudiante</p>
@@ -383,9 +330,9 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
 
 <div id="appView" style="display:none;">
 <header>
-<div class="logo-wrap" id="headerLogoWrap">
-  <img src="univo.png" alt="UNIVO" style="height:48px; width:48px; border-radius:50%; object-fit:cover; box-shadow:0 2px 10px rgba(0,0,0,0.2);" onerror="this.style.display='none'; document.getElementById('headerLogoWrap').innerHTML = '<span style=\'font-weight:900;font-size:18px;color:#d4a017;background:#1e3a5f;padding:6px 14px;border-radius:50%;display:inline-block;width:48px;height:48px;text-align:center;line-height:36px;\'>U</span>'">
-</div>
+  <div class="logo-wrap">
+    <img src="univo.png" alt="UNIVO" onerror="this.outerHTML='<span style=\'font-weight:900;font-size:18px;\'>UNIVO</span>'">
+  </div>
   <div class="header-title" style="margin-left:10px;">
     <h1>Ingeniería</h1>
     <h2>Civil</h2>
@@ -556,11 +503,10 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
 <div class="modal-overlay" id="asistenciaModal">
   <div class="modal" style="width:540px;">
     <div class="asist-logos">
-<div class="asist-logos" id="asistLogoWrap">
-  <img src="univo.png" alt="UNIVO" style="width:56px; height:56px; border-radius:50%; object-fit:cover; box-shadow:0 2px 10px rgba(0,0,0,0.15);" onerror="this.style.display='none'; document.getElementById('asistLogoWrap').innerHTML = '<span style=\'font-weight:900;font-size:20px;color:#d4a017;background:#1e3a5f;padding:6px;border-radius:50%;display:inline-block;width:56px;height:56px;text-align:center;line-height:44px;\'>U</span><div style=\'width:1px;height:46px;background:var(--gl);margin:0 16px;\'></div><span style=\'font-size:11px;color:var(--gm);max-width:80px;text-align:center;\'>Dir. Académica UNIVO</span>'">
-  <div style="width:1px;height:46px;background:var(--gl);"></div>
-  <img src="logo2.jpg" alt="Dir. Académica" onerror="this.outerHTML='<span style=\'font-size:11px;color:var(--gm);max-width:80px;text-align:center;\'>Dir. Académica UNIVO</span>'">
-</div>
+      <img src="univo.png" alt="UNIVO" onerror="this.style.display='none'">
+      <div style="width:1px;height:46px;background:var(--gl);"></div>
+      <img src="logo2.jpg" alt="Dir. Académica" onerror="this.outerHTML='<span style=\'font-size:11px;color:var(--gm);max-width:80px;text-align:center;\'>Dir. Académica UNIVO</span>'">
+    </div>
     <h3 style="text-align:center;margin-bottom:3px;">🏛 Asistencia Diaria</h3>
     <p style="text-align:center;margin-bottom:13px;">Dirección Académica · Universidad de Oriente</p>
     <div class="asist-hoy-box" id="asistenciaHoy"></div>
@@ -1392,11 +1338,9 @@ function _showLoading(msg, sub) {
     ov = document.createElement('div');
     ov.id = 'loadingOverlay';
     ov.innerHTML = `
-    
-<img src="univo.png" alt="UNIVO" id="loadingLogo"
-     style="width:80px; height:80px; border-radius:50%; object-fit:cover; box-shadow:0 4px 20px rgba(0,0,0,0.3);"
-     onerror="this.style.display='none'; document.getElementById('loadingMsg').innerHTML = '🏛️ UNIVO'">
-     
+      <img src="univo.png" alt="UNIVO"
+           style="height:80px;object-fit:contain;"
+           onerror="this.style.display='none'">
       <div id="loadingMsg"  style="color:#fff;font-size:18px;font-weight:800;">Cargando...</div>
       <div style="width:46px;height:46px;border:4px solid rgba(255,255,255,.22);border-top-color:#fff;
                   border-radius:50%;animation:loadSpin .75s linear infinite;"></div>
@@ -1850,48 +1794,28 @@ function renderPensum(){
     col.className='cycle-col';
     col.dataset.cycleId=cycle.id;
 
-const isDone=!!(sd.cyclesDone&&sd.cyclesDone[cycle.id]);
-const lbl=document.createElement('div');
-lbl.className='cycle-header-box'+(isDone?' done-cycle':'');
-lbl.innerHTML=(isDone?'✅ ':'')+cycle.name.toUpperCase();
-lbl.onclick=()=>openCycle(cycle.id);
-// 🔥 Forzar estilo inline para asegurar color
-if(isDone) {
-  lbl.style.background = '#047857';
-  lbl.style.borderColor = '#047857';
-  lbl.style.color = '#fff';
-} else {
-  lbl.style.background = 'var(--blue)';
-  lbl.style.borderColor = 'var(--blue)';
-}
-col.appendChild(lbl);
+    const isDone=!!(sd.cyclesDone&&sd.cyclesDone[cycle.id]);
+    const lbl=document.createElement('div');
+    lbl.className='cycle-header-box'+(isDone?' done-cycle':'');
+    lbl.innerHTML=(isDone?'✅ ':'')+cycle.name.toUpperCase();
+    lbl.onclick=()=>openCycle(cycle.id);
+    col.appendChild(lbl);
 
     cycle.subjects.forEach(sub=>{
-  const subData=getSubjectData(sub.num);
-  const grade=getEffectiveGrade(subData);
-  const status=getEffectiveStatus(subData);
-  const isSpecial=!!(sd.specialCards&&sd.specialCards[sub.num]);
-  const progress=grade!==null?Math.round((grade/10)*100):0;
-  const isCycleDone = !!(sd.cyclesDone && sd.cyclesDone[cycle.id]);
+      const subData=getSubjectData(sub.num);
+      const grade=getEffectiveGrade(subData);
+      const status=getEffectiveStatus(subData);
+      const isSpecial=!!(sd.specialCards&&sd.specialCards[sub.num]);
+      const progress=grade!==null?Math.round((grade/10)*100):0;
 
-  const card=document.createElement('div');
-  card.className='subject-card'+(isSpecial?' status-special':'')+(grade===null&&status==='pending'&&!isSpecial?' no-grade':'');
-  card.dataset.num=sub.num;
-  card.dataset.cycleId=cycle.id;
-  
-  // 🔥 SI EL CICLO ESTÁ FINALIZADO → FONDO VERDE FIJO
-  if(isCycleDone) {
-    card.style.background = 'rgba(16,185,129,.20)';
-    card.style.borderColor = 'var(--pass)';
-  } else if(grade!==null&&!isSpecial) {
-    card.style.background=`linear-gradient(to right,rgba(16,185,129,.42) ${progress}%,rgba(239,68,68,.35) ${progress}%)`;
-  } else if(status==='pass'&&!isSpecial) {
-    card.style.background='rgba(16,185,129,.35)';
-  } else if(status==='fail'&&!isSpecial) {
-    card.style.background='rgba(239,68,68,.25)';
-  } else if(status==='inprogress'&&!isSpecial) {
-    card.style.background='rgba(251,191,36,.25)';
-  }
+      const card=document.createElement('div');
+      card.className='subject-card'+(isSpecial?' status-special':'')+(grade===null&&status==='pending'&&!isSpecial?' no-grade':'');
+      card.dataset.num=sub.num;
+      card.dataset.cycleId=cycle.id;
+      if(grade!==null&&!isSpecial) card.style.background=`linear-gradient(to right,rgba(16,185,129,.42) ${progress}%,rgba(239,68,68,.35) ${progress}%)`;
+      else if(status==='pass'&&!isSpecial) card.style.background=`linear-gradient(to right,rgba(16,185,129,.42) 60%,rgba(239,68,68,.35) 60%)`;
+      else if(status==='fail'&&!isSpecial) card.style.background=`linear-gradient(to right,rgba(16,185,129,.42) 40%,rgba(239,68,68,.35) 40%)`;
+      else if(status==='inprogress'&&!isSpecial) card.style.background='rgba(251,191,36,.25)';
 
       // CTRL+2CLICS = poner/quitar 6.0
       // CTRL+SHIFT+CLIC = marcar especial (amarillo)
@@ -1980,27 +1904,10 @@ function fillWithSix(num){
   const sd=getSubjectData(num);
   const allSix=sd.computos.every(c=>parseFloat(c.lab1)===6&&parseFloat(c.lab2)===6&&parseFloat(c.parcial)===6);
   for(let i=0;i<3;i++){sd.computos[i]={lab1:allSix?'':6,lab2:allSix?'':6,parcial:allSix?'':6};}
-  
-  // 🔥 ACTUALIZAR EL ESTADO MANUALMENTE
-  const fg = calcFinal(sd.computos);
-  sd.finalGrade = fg;
-  sd.status = allSix ? 'pending' : 'pass';
-  
-  // 🔥 MARCAR COMO ESPECIAL (AMARILLO) PARA QUE SE VEA COMO CICLO EXTRAORDINARIO
-  if(!allSix) {
-    if(!sd.specialCards) sd.specialCards = {};
-    sd.specialCards[num] = true;
-  } else {
-    // Si se limpia, quitar la marca especial
-    const studentData = getStudentData();
-    if(studentData.specialCards) {
-      delete studentData.specialCards[num];
-    }
-  }
-  
   saveLocal();renderPensum();
-  showToast(allSix?'Notas limpiadas':'✓ Materia rellenada con 6.0 (Ciclo Extraordinario)','success');
+  showToast(allSix?'Notas limpiadas':'✓ Materia rellenada con 6.0','success');
 }
+
 function toggleSpecialCard(num){
   const sd=getStudentData();
   if(!sd.specialCards) sd.specialCards={};
@@ -2124,17 +2031,6 @@ function updateCycleDoneBtn(){
   document.getElementById('cycleDoneIcon').textContent=done?'✅':'☐';
   document.getElementById('cycleDoneText').textContent=done?'✓ Finalizado — clic para deshacer':'Marcar finalizado';
   if(btn) btn.title=done?'Clic para desmarcar este ciclo':'Marcar este ciclo como finalizado';
-  
-  // 🔥 FORZAR ESTILO DEL BOTÓN
-  if(done) {
-    btn.style.background = '#10b981';
-    btn.style.color = '#fff';
-    btn.style.borderColor = '#10b981';
-  } else {
-    btn.style.background = 'transparent';
-    btn.style.color = '#10b981';
-    btn.style.borderColor = '#10b981';
-  }
 }
 
 function openCycle(id,highlightNum=null){
@@ -2570,8 +2466,10 @@ async function syncToSheets(isAuto=false){
   const sd=getStudentData();
   const payload={student:currentStudent,timestamp:new Date().toISOString(),data:[],events:sd.events||[],cyclesDone:sd.cyclesDone||{},asistencias:sd.asistencias||{},specialCards:sd.specialCards||{},cyclesOrder:CYCLES.map(c=>({id:c.id,subjects:c.subjects.map(s=>s.num)}))};
   CYCLES.forEach(cy=>cy.subjects.forEach(sub=>{
-    const s=getSubjectData(sub.num);const fg=calcFinal(s.computos);
-    payload.data.push({num:sub.num,code:sub.code,name:sub.name,cycle:cy.name,year:cy.year,uv:sub.uv,computo1:calcComputo(s.computos[0]),computo2:calcComputo(s.computos[1]),computo3:calcComputo(s.computos[2]),lab1_c1:s.computos[0].lab1,lab2_c1:s.computos[0].lab2,parcial_c1:s.computos[0].parcial,lab1_c2:s.computos[1].lab1,lab2_c2:s.computos[1].lab2,parcial_c2:s.computos[1].parcial,lab1_c3:s.computos[2].lab1,lab2_c3:s.computos[2].lab2,parcial_c3:s.computos[2].parcial,finalGrade:fg!==null?fg.toFixed(2):'',status:s.status});
+    const s=getSubjectData(sub.num);
+    const fg=getEffectiveGrade(s);
+    const effStatus=getEffectiveStatus(s);
+    payload.data.push({num:sub.num,code:sub.code,name:sub.name,cycle:cy.name,year:cy.year,uv:sub.uv,computo1:calcComputo(s.computos[0]),computo2:calcComputo(s.computos[1]),computo3:calcComputo(s.computos[2]),lab1_c1:s.computos[0].lab1,lab2_c1:s.computos[0].lab2,parcial_c1:s.computos[0].parcial,lab1_c2:s.computos[1].lab1,lab2_c2:s.computos[1].lab2,parcial_c2:s.computos[1].parcial,lab1_c3:s.computos[2].lab1,lab2_c3:s.computos[2].lab2,parcial_c3:s.computos[2].parcial,finalGrade:fg!==null?fg.toFixed(2):'',status:effStatus});
   }));
   try{
     // Intentar POST directo con CORS primero, luego no-cors
