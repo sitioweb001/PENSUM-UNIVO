@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="es" id="htmlRoot" data-theme="light">
 <head>
@@ -1982,10 +1980,27 @@ function fillWithSix(num){
   const sd=getSubjectData(num);
   const allSix=sd.computos.every(c=>parseFloat(c.lab1)===6&&parseFloat(c.lab2)===6&&parseFloat(c.parcial)===6);
   for(let i=0;i<3;i++){sd.computos[i]={lab1:allSix?'':6,lab2:allSix?'':6,parcial:allSix?'':6};}
+  
+  // 🔥 ACTUALIZAR EL ESTADO MANUALMENTE
+  const fg = calcFinal(sd.computos);
+  sd.finalGrade = fg;
+  sd.status = allSix ? 'pending' : 'pass';
+  
+  // 🔥 MARCAR COMO ESPECIAL (AMARILLO) PARA QUE SE VEA COMO CICLO EXTRAORDINARIO
+  if(!allSix) {
+    if(!sd.specialCards) sd.specialCards = {};
+    sd.specialCards[num] = true;
+  } else {
+    // Si se limpia, quitar la marca especial
+    const studentData = getStudentData();
+    if(studentData.specialCards) {
+      delete studentData.specialCards[num];
+    }
+  }
+  
   saveLocal();renderPensum();
-  showToast(allSix?'Notas limpiadas':'✓ Materia rellenada con 6.0','success');
+  showToast(allSix?'Notas limpiadas':'✓ Materia rellenada con 6.0 (Ciclo Extraordinario)','success');
 }
-
 function toggleSpecialCard(num){
   const sd=getStudentData();
   if(!sd.specialCards) sd.specialCards={};
