@@ -885,7 +885,7 @@ async function doChangePass() {
 
 async function init() {
   appData = {};
-  const defUrl = 'PEGA_AQUI_LA_URL_DE_TU_APPS_SCRIPT_DE_UNIVO/exec';
+  const defUrl = 'https://script.google.com/macros/s/AKfycbxdlptKa7bXSiIqQmUJZ8TOreDwWTRpz_2hRYTZ-aNJO_Q1hzDvT7Okm8gZrQGdMrG1lg/exec';
   try { config = JSON.parse(localStorage.getItem('ugb_pensum_config') || '{}'); if (!config.appsScriptUrl) config.appsScriptUrl = defUrl; }
   catch(e) { config = { appsScriptUrl: defUrl }; }
   const t = localStorage.getItem('ugb_theme') || 'light';
