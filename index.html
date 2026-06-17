@@ -1595,6 +1595,7 @@ let autoFetchInterval = null;
 let _isSyncing  = false;  // flag para SUBIR
 let _isFetching = false;  // flag para BAJAR (INDEPENDIENTE)
 let _pendingUpload = false; // hay cambios sin subir
+let _calendarModalOpen = false; // evita que el auto-fetch reescriba el calendario mientras el usuario lo edita
 
 function startAutoSyncInterval() {
   if (!config.appsScriptUrl || !currentStudent) return;
@@ -1602,16 +1603,18 @@ function startAutoSyncInterval() {
 
   // SUBIR a Sheets cada 1.5s (solo si hay cambios pendientes)
   autoSyncInterval = setInterval(async () => {
-    if (_isSyncing || !_pendingUpload || !currentStudent || !config.appsScriptUrl) return;
+    if (_isSyncing || _isFetching || !_pendingUpload || !currentStudent || !config.appsScriptUrl) return;
     _isSyncing = true;
     _pendingUpload = false;
     try { await syncToSheets(true); } catch(e) { _pendingUpload = true; }
     finally { _isSyncing = false; }
   }, 1500);
 
-  // BAJAR de Sheets cada 2.5s (SIEMPRE, independiente de la subida)
+  // BAJAR de Sheets cada 2.5s — NUNCA mientras hay una subida en curso,
+  // porque el GS borra y reescribe la hoja (clearContents + setValues),
+  // y leer a mitad de esa operación devuelve datos vacíos/parciales.
   autoFetchInterval = setInterval(() => {
-    if (!_isFetching && currentStudent && config.appsScriptUrl) {
+    if (!_isFetching && !_isSyncing && currentStudent && config.appsScriptUrl) {
       _silentFetch();
     }
   }, 2500);
@@ -1668,32 +1671,48 @@ async function _silentFetch() {
       });
     }
 
-    // ── Eventos ──
-    if (d.events && d.events.length > 0) {
-      if (JSON.stringify(d.events) !== JSON.stringify(local.events || [])) {
-        local.events = d.events;
-        changed = true;
+    // ── Eventos (calendario) ──
+    // Defensa: no sobrescribir con vacío si localmente había eventos,
+    // y nunca tocar mientras el usuario tiene el modal de calendario abierto.
+    if (d.events !== undefined && !_calendarModalOpen) {
+      const remoteHasEvents = d.events && d.events.length > 0;
+      const localHasEvents  = local.events && local.events.length > 0;
+      if (remoteHasEvents || !localHasEvents) {
+        if (JSON.stringify(d.events || []) !== JSON.stringify(local.events || [])) {
+          local.events = d.events || [];
+          changed = true;
+        }
       }
     }
 
     // ── Ciclos finalizados — comparar JSON completo ──
+    // Defensa: si el servidor devuelve {} pero localmente había datos,
+    // probablemente se leyó a mitad de una escritura en el GS — ignorar.
     if (d.cyclesDone !== undefined) {
-      const remCD = JSON.stringify(d.cyclesDone || {});
-      const locCD = JSON.stringify(local.cyclesDone || {});
-      if (remCD !== locCD) {
-        local.cyclesDone = d.cyclesDone || {};
-        changed = true;
+      const remoteHasData = d.cyclesDone && Object.keys(d.cyclesDone).length > 0;
+      const localHasData  = local.cyclesDone && Object.keys(local.cyclesDone).length > 0;
+      if (remoteHasData || !localHasData) {
+        const remCD = JSON.stringify(d.cyclesDone || {});
+        const locCD = JSON.stringify(local.cyclesDone || {});
+        if (remCD !== locCD) {
+          local.cyclesDone = d.cyclesDone || {};
+          changed = true;
+        }
       }
     }
 
     // ── SpecialCards (amarillo) ──
-    if (d.specialCards) {
+    if (d.specialCards !== undefined) {
       if (!local.specialCards) local.specialCards = {};
-      const remSC = JSON.stringify(d.specialCards);
-      const locSC = JSON.stringify(local.specialCards);
-      if (remSC !== locSC) {
-        local.specialCards = d.specialCards;
-        changed = true;
+      const remoteHasSC = d.specialCards && Object.keys(d.specialCards).length > 0;
+      const localHasSC  = Object.keys(local.specialCards).length > 0;
+      if (remoteHasSC || !localHasSC) {
+        const remSC = JSON.stringify(d.specialCards || {});
+        const locSC = JSON.stringify(local.specialCards);
+        if (remSC !== locSC) {
+          local.specialCards = d.specialCards || {};
+          changed = true;
+        }
       }
     }
 
@@ -2213,8 +2232,8 @@ function filterByPeriod(arr, dateField, period){
 // ═══════════════════════════════════════════════════════════
 // CALENDAR
 // ═══════════════════════════════════════════════════════════
-function openCalendarModal(){document.getElementById('calendarModal').classList.add('open');renderEvents();}
-function closeCalendarModal(){document.getElementById('calendarModal').classList.remove('open');}
+function openCalendarModal(){_calendarModalOpen=true;document.getElementById('calendarModal').classList.add('open');renderEvents();}
+function closeCalendarModal(){_calendarModalOpen=false;document.getElementById('calendarModal').classList.remove('open');}
 
 function setCalFilter(f,btn){
   calFilter=f;
