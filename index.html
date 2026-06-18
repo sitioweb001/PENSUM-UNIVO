@@ -1262,11 +1262,9 @@ async function doLogin() {
 async function selectStudent(name) {
   currentStudent = name;
 
-  // Inicializar estructura local
-  if (!appData[name]) appData[name] = {notas:{}, events:[], cyclesDone:{}, asistencias:{}, specialCards:{}, undoStack:[]};
-  if (!appData[name].cyclesDone)   appData[name].cyclesDone   = {};
-  if (!appData[name].specialCards) appData[name].specialCards = {};
-  if (!appData[name].asistencias)  appData[name].asistencias  = {};
+  // NO inicializar con vacío antes de descargar — si los datos vienen de Sheets
+  // y aquí ponemos vacío primero, un fallo de red deja el pénsum en blanco.
+  // Inicializamos solo como fallback al final si la descarga falla.
 
   // ── PANTALLA DE CARGA ──
   _showLoading('Cargando datos de ' + name + '...', 'Descargando desde Google Sheets');
@@ -1310,6 +1308,12 @@ async function selectStudent(name) {
     _showLoading('Sin Sheets configurado', 'Modo local...');
     await new Promise(r => setTimeout(r, 300));
   }
+
+  // Inicializar estructura solo si no se cargó nada de Sheets (fallback)
+  if (!appData[name]) appData[name] = {notas:{}, events:[], cyclesDone:{}, asistencias:{}, specialCards:{}, undoStack:[]};
+  if (!appData[name].cyclesDone)   appData[name].cyclesDone   = {};
+  if (!appData[name].specialCards) appData[name].specialCards = {};
+  if (!appData[name].asistencias)  appData[name].asistencias  = {};
 
   // Restaurar ciclos
   const sd = appData[name];
