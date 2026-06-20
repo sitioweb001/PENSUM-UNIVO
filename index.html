@@ -1262,14 +1262,18 @@ async function doLogin() {
 async function selectStudent(name) {
   currentStudent = name;
 
-  // NO inicializar con vacío antes de descargar — si los datos vienen de Sheets
-  // y aquí ponemos vacío primero, un fallo de red deja el pénsum en blanco.
-  // Inicializamos solo como fallback al final si la descarga falla.
+  // Crear la estructura local ANTES de la descarga para que
+  // `local.notas[...] = ...` no falle con "Cannot read property of undefined".
+  if (!appData[name]) appData[name] = {notas:{}, events:[], cyclesDone:{}, asistencias:{}, specialCards:{}, undoStack:[]};
+  if (!appData[name].cyclesDone)   appData[name].cyclesDone   = {};
+  if (!appData[name].specialCards) appData[name].specialCards = {};
+  if (!appData[name].asistencias)  appData[name].asistencias  = {};
 
   // ── PANTALLA DE CARGA ──
   _showLoading('Cargando datos de ' + name + '...', 'Descargando desde Google Sheets');
 
   // ── SIEMPRE DESCARGAR DESDE SHEETS (fuente de verdad) ──
+  let _downloadOk = false;
   if (config.appsScriptUrl) {
     try {
       const res = await _jsonpFetch(config.appsScriptUrl + '?student=' + encodeURIComponent(name), 9000);
@@ -1294,6 +1298,7 @@ async function selectStudent(name) {
         if (d.asistencias) Object.assign(local.asistencias, d.asistencias);
         if (d.specialCards) local.specialCards = d.specialCards;
         if (d.cycles) local.cycles = d.cycles;
+        _downloadOk = true;
         _showLoading('¡Todo al día!', 'Abriendo pénsum...');
         await new Promise(r => setTimeout(r, 400));
       } else {
@@ -1301,6 +1306,7 @@ async function selectStudent(name) {
         await new Promise(r => setTimeout(r, 600));
       }
     } catch(e) {
+      console.error('Error descargando datos de Sheets:', e);
       _showLoading('Sin conexión', 'Usando copia local...');
       await new Promise(r => setTimeout(r, 700));
     }
@@ -1308,12 +1314,6 @@ async function selectStudent(name) {
     _showLoading('Sin Sheets configurado', 'Modo local...');
     await new Promise(r => setTimeout(r, 300));
   }
-
-  // Inicializar estructura solo si no se cargó nada de Sheets (fallback)
-  if (!appData[name]) appData[name] = {notas:{}, events:[], cyclesDone:{}, asistencias:{}, specialCards:{}, undoStack:[]};
-  if (!appData[name].cyclesDone)   appData[name].cyclesDone   = {};
-  if (!appData[name].specialCards) appData[name].specialCards = {};
-  if (!appData[name].asistencias)  appData[name].asistencias  = {};
 
   // Restaurar ciclos
   const sd = appData[name];
@@ -1329,6 +1329,18 @@ async function selectStudent(name) {
   document.getElementById('appView').style.display   = 'block';
   document.getElementById('bottomBar').style.display = 'flex';
   document.getElementById('currentStudentName').textContent = '👤 ' + name;
+
+  if (config.appsScriptUrl && !_downloadOk) {
+    document.getElementById('syncStatus').textContent = '⚠️ Sin datos del servidor';
+    showToast('⚠️ No se pudo descargar tu información. Revisa tu conexión y usa "Refrescar desde Sheets" antes de editar.', 'error');
+    renderPensum();
+    _pendingUpload = false;
+    autoFetchInterval = setInterval(() => {
+      if (!_isFetching && !_isSyncing && currentStudent && config.appsScriptUrl) _silentFetch();
+    }, 2500);
+    return;
+  }
+
   if (config.appsScriptUrl) document.getElementById('syncStatus').textContent = '✓ Sheets activo';
   renderPensum();
   _pendingUpload = false; // recién bajamos todo, no hay nada pendiente
@@ -1649,6 +1661,7 @@ async function _silentFetch() {
     const d     = res.payload;
     const local = appData[currentStudent];
     if (!local) return;
+    if (!local.notas) local.notas = {};
     let changed = false;
 
     // ── Notas: reemplazar siempre con lo que viene de Sheets ──
@@ -1715,6 +1728,21 @@ async function _silentFetch() {
         const locSC = JSON.stringify(local.specialCards);
         if (remSC !== locSC) {
           local.specialCards = d.specialCards || {};
+          changed = true;
+        }
+      }
+    }
+
+    // ── Asistencias ──
+    if (d.asistencias !== undefined) {
+      if (!local.asistencias) local.asistencias = {};
+      const remoteHasA = d.asistencias && Object.keys(d.asistencias).length > 0;
+      const localHasA  = Object.keys(local.asistencias).length > 0;
+      if (remoteHasA || !localHasA) {
+        const remA = JSON.stringify(d.asistencias || {});
+        const locA = JSON.stringify(local.asistencias);
+        if (remA !== locA) {
+          local.asistencias = d.asistencias || {};
           changed = true;
         }
       }
