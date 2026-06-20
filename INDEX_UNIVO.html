@@ -1,0 +1,2624 @@
+<!DOCTYPE html>
+<html lang="es" id="htmlRoot" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNIVO — Pénsum Ing. Civil</title>
+<link rel="icon" type="image/png" href="univo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS LIGHT ── */
+:root {
+  /* UNIVO: dorado como color principal (fondos/acentos), azul marino para texto legible, blanco de base */
+  --blue:#d4a017;--blue-dk:#b8860b;--blue-lt:#f0c14b;
+  --blue-text:#1e3a5f;--blue-text-dk:#152a47;
+  --navy:#1e3a5f;--navy-dk:#152a47;
+  --bg:#fafaf7;--card:#fff;--gl:#ede4cc;--gm:#7a6f55;--text:#1e2530;
+  --pass:#10b981;--fail:#ef4444;--pend:#f59e0b;--none:#9ca3af;
+  --amber-bg:rgba(212,160,23,.18);--amber-border:rgba(212,160,23,.5);
+  --shadow:0 4px 24px rgba(180,134,11,.14);
+  --hdr:#1e3a5f;--modal-bg:#fff;--inp-bg:#fff;--inp-b:#ede4cc;
+  --comp-bg:#fdf8ec;--subj-bg:#fff;--subj-hov:#fdf6e3;
+  --chip-pass-bg:#d1fae5;--chip-pass-c:#065f46;
+  --chip-fail-bg:#fee2e2;--chip-fail-c:#991b1b;
+  --chip-prog-bg:#fef3c7;--chip-prog-c:#92400e;
+}
+[data-theme="dark"] {
+  --bg:#1a1f2b;--card:#232a3a;--gl:rgba(212,160,23,.18);--gm:#a89b78;--text:#f5f0e0;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --hdr:#152a47;--modal-bg:#232a3a;--inp-bg:#1a1f2b;--inp-b:rgba(212,160,23,.22);
+  --comp-bg:#1a1f2b;--subj-bg:#232a3a;--subj-hov:#2c3548;
+  --chip-pass-bg:rgba(16,185,129,.18);--chip-pass-c:#6ee7b7;
+  --chip-fail-bg:rgba(239,68,68,.18);--chip-fail-c:#fca5a5;
+  --chip-prog-bg:rgba(245,158,11,.18);--chip-prog-c:#fcd34d;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
+
+/* PRINT */
+@media print{body>*:not(#printArea){display:none!important;}#printArea,#printArea *{display:revert!important;}#printArea{position:fixed;inset:0;background:#fff;padding:20px 28px;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}}
+body.printing>*:not(#printArea){display:none!important;}
+body.printing #printArea{display:block!important;position:fixed;inset:0;z-index:99999;background:#fff;overflow-y:auto;padding:22px 30px;}
+#printArea{display:none;}
+
+/* LOGIN */
+#loginView{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue-dk),var(--blue));display:flex;align-items:center;justify-content:center;z-index:1000;}
+.login-box{background:var(--modal-bg);border-radius:20px;padding:38px;width:420px;max-width:93vw;box-shadow:0 32px 80px rgba(0,0,0,.3);}
+.login-logo-wrap{text-align:center;margin-bottom:18px;}
+.login-logo-wrap img{max-width:230px;max-height:88px;object-fit:contain;}
+.login-box h2{font-size:22px;font-weight:800;color:var(--blue-text-dk);margin-bottom:6px;text-align:center;}
+[data-theme="dark"] .login-box h2{color:var(--blue-lt);}
+.login-box p{color:var(--gm);font-size:13px;text-align:center;margin-bottom:20px;}
+.login-toggle{display:flex;gap:10px;justify-content:center;margin-bottom:16px;}
+.pill{flex:1;padding:11px;border-radius:999px;border:1px solid var(--gl);background:var(--bg);color:var(--text);font-weight:700;cursor:pointer;transition:all .2s;}
+.pill.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.login-field{margin-bottom:14px;}
+.login-field label{display:block;font-size:11px;font-weight:600;color:var(--text);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+.login-field input{width:100%;padding:11px 13px;border:1.5px solid var(--inp-b);border-radius:10px;font-family:'Inter',sans-serif;font-size:14px;outline:none;background:var(--inp-bg);color:var(--text);transition:border-color .15s;}
+.login-field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(212,160,23,.15);}
+.login-btn{width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:6px;}
+.login-btn:hover{background:var(--blue-dk);transform:translateY(-1px);}
+.student-chip{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:var(--bg);border-radius:8px;margin-bottom:6px;cursor:pointer;transition:all .15s;font-size:13px;font-weight:500;border:1px solid var(--gl);}
+.student-chip:hover{background:var(--blue-lt);color:#fff;}
+.student-chip .del-btn{background:transparent;border:none;color:var(--gm);cursor:pointer;font-size:16px;padding:0 4px;}
+.student-chip:hover .del-btn{color:#fff;}
+
+/* HEADER */
+header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.3);}
+.logo-wrap img{height:42px;width:auto;object-fit:contain;}
+.header-title h1{font-size:10px;font-weight:400;letter-spacing:3px;text-transform:uppercase;opacity:.7;}
+.header-title h2{font-size:17px;font-weight:800;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.sync-status{font-size:11px;opacity:.7;color:#fff;}
+.ham-wrap{position:relative;}
+.ham-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.ham-btn:hover{background:rgba(255,255,255,.28);}
+.ham-menu{position:absolute;top:46px;right:0;background:var(--modal-bg);border:1px solid var(--gl);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.25);min-width:230px;z-index:500;display:none;overflow:hidden;}
+.ham-menu.open{display:block;}
+.ham-item{padding:10px 16px;display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text);transition:background .15s;}
+.ham-item:hover{background:var(--bg);}
+.ham-item.danger:hover{background:#fee2e2;color:#991b1b;}
+.ham-divider{height:1px;background:var(--gl);}
+
+/* VIEWS */
+.view{display:none;}.view.active{display:block;}
+
+/* STATS */
+.stats-bar{background:var(--card);border-bottom:1px solid var(--gl);padding:9px 22px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+.stat-item{display:flex;align-items:center;gap:6px;font-size:12px;}
+.stat-dot{width:9px;height:9px;border-radius:50%;}
+.stat-label{color:var(--gm);}
+.stat-val{font-weight:700;color:var(--text);}
+.progress-bar-wrap{width:110px;height:5px;background:var(--gl);border-radius:3px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),#60a5fa);border-radius:3px;transition:width .4s;}
+
+/* PENSUM CONTROLS */
+.pensum-controls{padding:10px 22px;display:flex;align-items:center;gap:12px;background:var(--card);border-bottom:1px solid var(--gl);flex-wrap:wrap;}
+.pensum-controls label{font-size:12px;color:var(--gm);font-weight:500;}
+.zoom-slider{-webkit-appearance:none;width:120px;height:4px;border-radius:2px;background:var(--blue);outline:none;cursor:pointer;}
+.zoom-slider::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--blue-dk);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+.zoom-value{font-size:12px;color:var(--blue-text);font-weight:600;min-width:36px;}
+/* Undo/Redo buttons */
+.undo-btn{padding:6px 12px;border-radius:8px;border:1.5px solid var(--gl);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;font-weight:600;}
+.undo-btn:hover:not(:disabled){background:var(--blue);color:#fff;border-color:var(--blue);}
+.undo-btn:disabled{opacity:.35;cursor:not-allowed;}
+.edit-mode-btn{padding:6px 13px;border-radius:8px;border:1.5px solid var(--blue-lt);background:transparent;color:var(--blue-lt);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
+.edit-mode-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.pensum-hint{font-size:11px;color:var(--gm);margin-left:auto;}
+.pensum-hint span{color:var(--blue-text);font-weight:600;}
+
+/* PENSUM GRID */
+.pensum-scroll-area{overflow:auto;padding:20px 22px 80px;min-height:calc(100vh - 165px);
+  -webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
+.pensum-wrapper{display:flex;flex-direction:column;width:max-content;min-width:100%;transform-origin:top left;}
+.year-row{display:grid;grid-template-columns:repeat(10,minmax(166px,176px));gap:10px;margin-bottom:6px;}
+.year-label{text-align:center;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--gm);text-transform:uppercase;border-bottom:2px solid var(--gl);padding-bottom:5px;}
+.pensum-grid{display:grid;grid-template-columns:repeat(10,minmax(166px,176px));gap:10px;width:max-content;}
+.cycle-col{display:flex;flex-direction:column;gap:8px;}
+.cycle-header-box{background:var(--blue);color:#fff;text-align:center;font-size:12px;font-weight:700;letter-spacing:1.5px;padding:9px 4px;border-radius:10px;cursor:pointer;transition:background .2s;user-select:none;text-transform:uppercase;white-space:nowrap;}
+.cycle-header-box:hover{background:var(--blue-dk);}
+.cycle-header-box.done-cycle{background:#047857;}
+
+/* Cards */
+.subject-card{background:var(--card);border:1px solid var(--gl);border-radius:8px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:114px;}
+.subject-card:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(212,160,23,.25);transform:translateY(-2px);}
+.subject-card.no-grade{background:var(--card)!important;}
+.subject-card.status-special{background:var(--amber-bg)!important;border-color:var(--amber-border)!important;}
+.subject-card.drag-over-card{border:2px dashed var(--blue)!important;background:rgba(212,160,23,.10)!important;}
+.subject-card.dragging-card{opacity:.45;}
+.card-top-bar{background:rgba(30,58,95,.92);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:4px 9px;font-size:11px;font-weight:700;}
+[data-theme="dark"] .card-top-bar{background:rgba(59,130,246,.72);}
+.card-body{padding:7px 9px;text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center;}
+.card-name{font-size:11px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-extra{background:var(--gl);color:var(--gm);font-size:8px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:2px 5px;display:inline-block;margin:0 auto 3px;border-radius:3px;}
+[data-theme="dark"] .card-extra{background:rgba(255,255,255,.1);}
+.card-bottom{display:flex;justify-content:space-between;align-items:center;padding:4px 9px;border-top:1px solid var(--gl);font-size:9px;color:var(--gm);}
+.card-status-left{position:absolute;top:0;left:0;width:4px;height:100%;background:transparent;}
+.status-pass{background:var(--pass);}
+.status-fail{background:var(--fail);}
+.status-inprogress{background:var(--pend);}
+.status-pending{background:var(--none);}
+.status-special{background:var(--pend);}
+.card-grade-inline{font-size:9px;font-weight:700;padding:1px 6px;border-radius:12px;color:#fff;}
+.grade-pass{background:var(--pass);}
+.grade-fail{background:var(--fail);}
+.grade-prog{background:var(--pend);}
+
+/* CYCLE DETAIL */
+#cycleView{padding:0;}
+.cycle-view-inner{padding:20px 26px 80px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
+.cycle-top-bar{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-bottom:20px;}
+.back-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;background:var(--card);border:1px solid var(--gl);border-radius:8px;color:var(--blue-text);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
+.back-btn:hover{background:var(--blue);color:#fff;}
+.cycle-done-btn{
+  padding:9px 18px;border-radius:999px;border:2px solid var(--pass);
+  background:transparent;color:var(--pass);font-weight:700;cursor:pointer;
+  font-size:13px;transition:all .2s;display:flex;align-items:center;gap:7px;
+}
+.cycle-done-btn:hover{background:var(--pass);color:#fff;}
+.cycle-done-btn.done{background:var(--pass);color:#fff;}
+.cycle-done-btn.done:hover{background:#dc2626;border-color:#dc2626;color:#fff;}
+.cycle-done-btn.done{background:var(--pass);color:#fff;}
+.cycle-done-btn:hover{opacity:.82;}
+.clear-cycle-btn{margin-left:auto;padding:7px 14px;background:var(--fail);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px;transition:all .15s;}
+.cycle-detail-header{margin-bottom:22px;}
+.cycle-detail-header h2{font-size:24px;font-weight:800;color:var(--blue-text-dk);}
+[data-theme="dark"] .cycle-detail-header h2{color:var(--blue-lt);}
+.cycle-detail-header p{color:var(--gm);font-size:13px;margin-top:3px;}
+.subjects-list{display:flex;flex-direction:column;gap:13px;}
+.subject-row{background:var(--subj-bg);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--gl);}
+.subject-row-header{padding:13px 17px;display:flex;align-items:center;gap:13px;cursor:pointer;user-select:none;background:var(--subj-bg);transition:background .15s;}
+.subject-row-header:hover{background:var(--subj-hov);}
+.srh-num{width:33px;height:33px;background:var(--blue);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.srh-info{flex:1;}
+.srh-name{font-size:14px;font-weight:700;color:var(--text);}
+.srh-meta{font-size:11px;color:var(--gm);margin-top:2px;}
+.srh-status{display:flex;align-items:center;gap:9px;}
+.status-chip{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.chip-pass{background:var(--chip-pass-bg);color:var(--chip-pass-c);}
+.chip-fail{background:var(--chip-fail-bg);color:var(--chip-fail-c);}
+.chip-inprogress{background:var(--chip-prog-bg);color:var(--chip-prog-c);}
+.chip-pending{background:var(--gl);color:var(--gm);}
+.chip-special{background:var(--amber-bg);color:#92400e;border:1px solid var(--amber-border);}
+.final-grade-display{font-size:20px;font-weight:800;color:var(--blue-text-dk);min-width:48px;text-align:right;}
+[data-theme="dark"] .final-grade-display{color:var(--blue-lt);}
+.final-grade-display.pass{color:var(--pass);}
+.final-grade-display.fail{color:var(--fail);}
+.toggle-icon{font-size:16px;color:var(--gm);transition:transform .2s;}
+.subject-row.open .toggle-icon{transform:rotate(180deg);}
+.subject-computos{padding:0 17px 17px;display:none;}
+.subject-row.open .subject-computos{display:block;}
+.computos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;}
+@media(max-width:740px){.computos-grid{grid-template-columns:1fr;}}
+.computo-block{background:var(--comp-bg);border-radius:10px;padding:12px;border:1px solid var(--gl);}
+.computo-title{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--blue-text);text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+[data-theme="dark"] .computo-title{color:var(--blue-lt);}
+.computo-avg{font-size:11px;color:var(--text);font-weight:700;background:var(--card);padding:2px 7px;border-radius:20px;border:1px solid var(--gl);}
+.activity-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
+.activity-label{font-size:11px;color:var(--text);flex:1;line-height:1.2;}
+.activity-pct{font-size:10px;color:var(--gm);width:28px;text-align:right;}
+.activity-input{width:62px;padding:5px 7px;border:1.5px solid var(--inp-b);border-radius:6px;font-size:13px;font-family:'Inter',sans-serif;font-weight:500;text-align:center;color:var(--text);background:var(--inp-bg);transition:border-color .15s;outline:none;}
+.activity-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(212,160,23,.15);}
+.computo-score{margin-top:7px;padding-top:7px;border-top:1px solid var(--gl);display:flex;justify-content:space-between;font-size:11px;color:var(--gm);}
+.computo-score strong{color:var(--text);font-weight:700;}
+.subject-summary{background:var(--card);border-radius:10px;padding:12px;margin-top:10px;border:2px solid var(--gl);display:flex;align-items:center;gap:13px;flex-wrap:wrap;}
+.summary-item{text-align:center;flex:1;min-width:68px;}
+.summary-item label{display:block;font-size:9px;color:var(--gm);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.summary-item span{font-size:20px;font-weight:800;color:var(--text);}
+.summary-item span.pass{color:var(--pass);}
+.summary-item span.fail{color:var(--fail);}
+.btn-group{display:flex;gap:7px;margin-left:auto;}
+.save-subject-btn{background:var(--blue);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.save-subject-btn:hover{background:var(--blue-dk);}
+.delete-subject-btn{background:var(--fail);color:#fff;border:none;padding:9px 14px;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--modal-bg);color:var(--text);border-radius:16px;padding:26px;width:520px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.3);}
+.modal h3{font-size:18px;font-weight:800;color:var(--blue-text-dk);margin-bottom:5px;}
+[data-theme="dark"] .modal h3{color:var(--blue-lt);}
+.modal>p{color:var(--gm);font-size:13px;margin-bottom:16px;}
+.modal-field{margin-bottom:13px;}
+.modal-field label{display:block;font-size:11px;font-weight:600;color:var(--text);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+.modal-field input,.modal-field textarea,.modal-field select{width:100%;padding:9px 12px;border:1.5px solid var(--inp-b);border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .15s;background:var(--inp-bg);color:var(--text);}
+.modal-field input:focus,.modal-field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(212,160,23,.15);}
+.modal-field textarea{min-height:170px;resize:vertical;}
+.modal-btns{display:flex;gap:10px;margin-top:18px;}
+.modal-btn{flex:1;padding:10px;border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .15s;}
+.modal-btn.primary{background:var(--blue);color:#fff;}
+.modal-btn.primary:hover{background:var(--blue-dk);}
+.modal-btn.secondary{background:var(--gl);color:var(--text);}
+.modal-btn.danger{background:var(--fail);color:#fff;}
+
+/* CALENDAR events */
+.cal-event-row{background:var(--comp-bg);border:1px solid var(--gl);border-radius:10px;padding:9px 12px;margin-bottom:7px;}
+.cal-event-row.ev-done{background:rgba(16,185,129,.07);border-color:rgba(16,185,129,.3);}
+.ev-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ev-check{width:16px;height:16px;accent-color:var(--pass);cursor:pointer;flex-shrink:0;}
+.ev-type{font-weight:700;color:var(--blue-text);font-size:13px;}
+[data-theme="dark"] .ev-type{color:var(--blue-lt);}
+.ev-type.done-txt{text-decoration:line-through;opacity:.6;}
+.ev-date{font-size:11px;font-weight:700;}
+.ev-nota-inp{width:56px;padding:3px 5px;border:1.5px solid var(--inp-b);border-radius:6px;font-size:12px;text-align:center;background:var(--inp-bg);color:var(--text);font-weight:600;outline:none;}
+.ev-del-btn{background:transparent;border:none;color:var(--fail);cursor:pointer;font-size:14px;margin-left:auto;}
+.ev-sub{font-size:11px;color:var(--gm);margin-top:3px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:68px;right:18px;background:var(--blue-dk);color:#fff;padding:10px 17px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.25);transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;max-width:300px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.show.success{background:#065f46;}
+.toast.show.error{background:#991b1b;}
+
+/* BOTTOM BAR */
+.bottom-toolbar{position:fixed;bottom:0;left:0;right:0;background:var(--modal-bg);border-top:1px solid var(--gl);padding:6px 16px;display:flex;align-items:center;gap:5px;z-index:150;box-shadow:0 -4px 20px rgba(0,0,0,.12);}
+.tool-btn{width:42px;height:42px;background:var(--bg);border:1px solid var(--gl);border-radius:9px;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.tool-btn:hover{background:var(--blue);border-color:var(--blue);transform:translateY(-2px);}
+
+/* ASISTENCIA */
+.asist-logos{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:13px;padding-bottom:13px;border-bottom:1px solid var(--gl);}
+.asist-logos img{height:48px;object-fit:contain;}
+.asist-hoy-box{background:var(--comp-bg);border-radius:12px;padding:14px;text-align:center;margin-bottom:13px;}
+.asist-mark-btn{width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+.asist-mark-btn:hover:not(:disabled){background:var(--blue-dk);}
+.asist-mark-btn:disabled{opacity:.5;cursor:not-allowed;}
+.asist-hist-row{display:flex;align-items:center;gap:8px;padding:8px 11px;background:var(--comp-bg);border-radius:8px;margin-bottom:5px;border:1px solid var(--gl);}
+.asist-hist-row.today-row{background:rgba(16,185,129,.09);border-color:rgba(16,185,129,.3);}
+
+/* HISTORIAL PENSUM */
+.hist-row{display:flex;align-items:flex-start;gap:8px;padding:8px 11px;background:var(--comp-bg);border-radius:8px;margin-bottom:5px;border-left:3px solid var(--blue);}
+.hist-row.undo-able{border-left-color:var(--pend);}
+.hist-row.redo-able{border-left-color:var(--none);}
+
+/* FILTER TABS */
+.filter-tabs{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;}
+.filter-tab{padding:5px 12px;border-radius:20px;border:1.5px solid var(--gl);background:var(--comp-bg);color:var(--gm);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;}
+.filter-tab.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+</style>
+</head>
+<body>
+<div id="loginView">
+<div class="login-box">
+  <div class="login-logo-wrap">
+    <img src="univo.png" alt="UNIVO" onerror="this.parentElement.innerHTML='<div style=\'width:90px;height:90px;border-radius:24px;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:900;margin:0 auto 18px\'>UNIVO</div>'">
+  </div>
+  <h2>Pénsum UNIVO</h2>
+  <p id="loginSubtitle">Ingresa nombre del estudiante</p>
+  <div id="sheetsStatusBar" style="display:none;background:rgba(16,185,129,.13);border:1px solid rgba(16,185,129,.35);border-radius:8px;padding:7px 12px;margin-bottom:10px;font-size:11px;color:#065f46;font-weight:600;text-align:center;">
+    🟢 Datos compartidos en la nube — todos los dispositivos ven lo mismo
+  </div>
+  <div id="sheetsOfflineBar" style="display:none;background:rgba(245,158,11,.13);border:1px solid rgba(245,158,11,.4);border-radius:8px;padding:7px 12px;margin-bottom:10px;font-size:11px;color:#92400e;font-weight:600;text-align:center;">
+    ⚠️ Sin conexión — configurar URL de Sheets para sincronizar
+  </div>
+  <div class="login-toggle">
+    <button class="pill active" id="loginModeName" onclick="setLoginMode('name')">Nombre</button>
+    <button class="pill" id="loginModeList" onclick="setLoginMode('list')">Lista</button>
+  </div>
+  <div id="loginNameField" class="login-field">
+    <label>Nombre</label>
+    <input type="text" id="loginName" placeholder="Ej: José García" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()">
+  </div>
+  <div class="login-field" style="margin-top:10px;">
+    <label style="display:flex;align-items:center;justify-content:space-between;">
+      <span>Contraseña</span>
+      <span style="font-size:10px;color:var(--gm);font-weight:400;">🔒 cifrada — nadie más puede verla</span>
+    </label>
+    <div style="position:relative;">
+      <input type="password" id="loginPass" placeholder="Tu contraseña secreta"
+             onkeydown="if(event.key==='Enter')doLogin()"
+             style="padding-right:38px;">
+      <button onclick="togglePassVis()" title="Mostrar/ocultar"
+              style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:0;color:var(--gm);"
+              id="passVisBtn">👁</button>
+    </div>
+  </div>
+  <button class="login-btn" id="loginButton" onclick="doLogin()" style="margin-top:14px;">Ingresar →</button>
+  <div style="display:flex;gap:8px;margin-top:14px;align-items:center;">
+    <button onclick="recargarLista()" title="Recargar lista desde Sheets"
+      style="padding:7px 12px;background:var(--bg);border:1.5px solid var(--gl);border-radius:8px;
+             font-size:12px;font-weight:700;cursor:pointer;color:var(--blue);flex-shrink:0;
+             display:flex;align-items:center;gap:5px;transition:all .2s;"
+      onmouseover="this.style.background='var(--blue)';this.style.color='#fff'"
+      onmouseout="this.style.background='var(--bg)';this.style.color='var(--blue)'">
+      🔄 Recargar
+    </button>
+    <span id="listLoadStatus" style="font-size:11px;color:var(--gm);"></span>
+  </div>
+  <div id="studentList" style="margin-top:10px;"></div>
+</div>
+</div>
+
+<div id="appView" style="display:none;">
+<header>
+  <div class="logo-wrap">
+    <img src="univo.png" alt="UNIVO" onerror="this.outerHTML='<span style=\'font-weight:900;font-size:18px;\'>UNIVO</span>'">
+  </div>
+  <div class="header-title" style="margin-left:10px;">
+    <h1>Ingeniería</h1>
+    <h2>Civil</h2>
+  </div>
+  <div class="header-right">
+    <span class="sync-status" id="syncStatus"></span>
+    <span style="font-size:12px;font-weight:600;opacity:.9;color:#fff;" id="currentStudentName"></span>
+    <div class="ham-wrap">
+      <button class="ham-btn" onclick="toggleHam()" title="Menú">☰</button>
+      <div class="ham-menu" id="hamMenu">
+        <div class="ham-item" onclick="openPasteModal();closeHam()">📋 Pegar notas del portal</div>
+        <div class="ham-item" onclick="openCalendarModal();closeHam()">📅 Calendario</div>
+        <div class="ham-item" onclick="openAsistencia();closeHam()">🏛 Asistencia diaria</div>
+        <div class="ham-item" onclick="openHistPensum();closeHam()">📜 Historial de cambios</div>
+        <div class="ham-divider"></div>
+        <div class="ham-item" onclick="fetchFromSheets();closeHam()" style="font-weight:700;color:#1e3a5f;">🔄 Refrescar desde Sheets</div>
+        <div class="ham-item" onclick="syncToSheets();closeHam()">☁️ Subir a Sheets</div>
+        <div class="ham-divider"></div>
+        <div class="ham-item" onclick="exportCSV();closeHam()">📊 Exportar CSV</div>
+        <div class="ham-item" onclick="importCSV();closeHam()">📁 Importar CSV</div>
+        <div class="ham-item" onclick="exportJSON();closeHam()">💾 Exportar JSON</div>
+        <div class="ham-item" onclick="importJSON();closeHam()">📂 Importar JSON</div>
+        <div class="ham-item" onclick="exportPDF();closeHam()">🖨️ Imprimir / PDF</div>
+        <div class="ham-divider"></div>
+        <div class="ham-item" onclick="openConfig();closeHam()">⚙️ Configurar Sheets</div>
+        <div class="ham-item" onclick="toggleTheme();closeHam()">🌙 Cambiar tema</div>
+        <div class="ham-divider"></div>
+        <div class="ham-item" onclick="openChangePass()" style="color:#1e3a5f;font-weight:700;">🔑 Cambiar contraseña</div>
+        <div class="ham-item" onclick="openDeleteDataModal()" style="color:#dc2626;font-weight:700;">🗑️ Borrar datos</div>
+        <div class="ham-item" onclick="limpiarCache();closeHam()" style="color:#7c3aed;font-weight:700;">🧹 Limpiar caché y recargar</div>
+        <div class="ham-divider"></div>
+        <div class="ham-item danger" onclick="changeStudent();closeHam()">🚪 Cambiar estudiante</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-dot" style="background:var(--pass)"></div><span class="stat-label">Aprobadas:</span><span class="stat-val" id="statPass">0</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--fail)"></div><span class="stat-label">Reprobadas:</span><span class="stat-val" id="statFail">0</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--pend)"></div><span class="stat-label">En curso:</span><span class="stat-val" id="statProgress">0</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--none)"></div><span class="stat-label">Pendientes:</span><span class="stat-val" id="statPending">0</span></div>
+  <div class="stat-item" style="margin-left:auto;">
+    <span class="stat-label">Progreso:</span>
+    <span class="stat-val" id="statPct" style="margin:0 7px;">0%</span>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="totalProgressBar" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="view active" id="pensumView">
+  <div class="pensum-controls">
+    <label>Zoom:</label>
+    <input type="range" class="zoom-slider" id="zoomSlider" min="40" max="160" value="85" oninput="updateZoom(this.value)">
+    <span class="zoom-value" id="zoomLabel">85%</span>
+    <button class="undo-btn" id="undoBtn" onclick="undoPensum()" title="Deshacer (Ctrl+Z)" disabled>↩ Deshacer</button>
+    <button class="undo-btn" id="redoBtn" onclick="redoPensum()" title="Rehacer (Ctrl+Y)" disabled>↪ Rehacer</button>
+    <button class="edit-mode-btn" id="editModeBtn" onclick="toggleEditMode()">✏️ Editar Pénsum</button>
+    <span class="pensum-hint"><span>Ctrl+2×clic</span>=6.0 &nbsp; <span>Ctrl+Shift+clic</span>=especial &nbsp; arrastra en modo edición</span>
+  </div>
+  <div class="pensum-scroll-area">
+    <div id="pensumWrapper" class="pensum-wrapper"></div>
+  </div>
+</div>
+
+<div class="view" id="cycleView">
+  <div class="cycle-view-inner">
+    <div class="cycle-top-bar">
+      <button class="back-btn" onclick="showPensum()">← Volver al Pénsum</button>
+      <button class="cycle-done-btn" id="cycleDoneBtn" onclick="toggleCycleDone()"><span id="cycleDoneIcon">☐</span> <span id="cycleDoneText">Marcar finalizado</span></button>
+      <button class="clear-cycle-btn" onclick="clearCurrentCycle()">🗑 Limpiar ciclo</button>
+    </div>
+    <div class="cycle-detail-header">
+      <h2 id="cycleTitle">Ciclo I</h2>
+      <p id="cycleSubtitle">I Año · 5 asignaturas · 3 cómputos</p>
+    </div>
+    <div class="subjects-list" id="subjectsList"></div>
+  </div>
+</div>
+</div><!-- /appView -->
+
+<div class="bottom-toolbar" id="bottomBar" style="display:none;">
+  <button class="tool-btn" onclick="openPasteModal()" title="Pegar notas">📋</button>
+  <button class="tool-btn" onclick="openCalendarModal()" title="Calendario">📅</button>
+  <button class="tool-btn" onclick="openAsistencia()" title="Asistencia">🏛</button>
+  <button class="tool-btn" onclick="fetchFromSheets()" title="Descargar">⬇️</button>
+  <button class="tool-btn" onclick="syncToSheets()" title="Subir">☁️</button>
+  <button class="tool-btn" onclick="exportPDF()" title="Imprimir">🖨️</button>
+  <button class="tool-btn" onclick="toggleTheme()" title="Tema">🌙</button>
+  <span style="margin-left:auto;font-size:10px;color:var(--gm);" id="autoSaveTick">💾 OK</span>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="configModal">
+  <div class="modal">
+    <h3>⚙️ Configurar Google Sheets</h3>
+    <p>URL del Web App de Google Apps Script.</p>
+    <div class="modal-field"><label>URL del Web App</label><input type="url" id="appsScriptUrl" placeholder="https://script.google.com/macros/s/.../exec"></div>
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="closeConfig()">Cancelar</button>
+      <button class="modal-btn primary" onclick="saveConfig()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="pasteModal">
+  <div class="modal" style="width:580px;">
+    <h3>📋 Pegar tabla de notas</h3>
+    <p>Copia del portal UNIVO o Excel y pega aquí.</p>
+    <pre style="background:var(--comp-bg);padding:7px;font-size:10px;margin-bottom:9px;border-radius:7px;overflow-x:auto;color:var(--gm);">CÓDIGO - MATERIA   N1  N2  P  C1  N1  N2  P  C2  N1  N2  P  C3  REP  NF</pre>
+    <div class="modal-field"><textarea id="pasteTextarea" placeholder="Pega aquí..."></textarea></div>
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="closePasteModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="processPaste()">Procesar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <h3>⚠️ Confirmar</h3>
+    <p id="deleteModalText">¿Eliminar?</p>
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="closeDeleteModal()">Cancelar</button>
+      <button class="modal-btn danger" onclick="confirmDelete()">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="calendarModal">
+  <div class="modal" style="width:640px;">
+    <h3>📅 Calendario de Actividades</h3>
+    <p>Marca ✓ realizadas, anota nota obtenida. Filtra por período.</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px;">
+      <button class="modal-btn secondary" style="padding:6px 10px;font-size:12px;" onclick="addEvent('Lab 1')">+ Lab 1</button>
+      <button class="modal-btn secondary" style="padding:6px 10px;font-size:12px;" onclick="addEvent('Lab 2')">+ Lab 2</button>
+      <button class="modal-btn secondary" style="padding:6px 10px;font-size:12px;" onclick="addEvent('Parcial')">+ Parcial</button>
+      <button class="modal-btn secondary" style="padding:6px 10px;font-size:12px;" onclick="addEvent('Otra')">+ Otra</button>
+    </div>
+    <div class="filter-tabs" id="calFilterTabs">
+      <button class="filter-tab active" onclick="setCalFilter('all',this)">Todos</button>
+      <button class="filter-tab" onclick="setCalFilter('week',this)">Esta semana</button>
+      <button class="filter-tab" onclick="setCalFilter('month',this)">Este mes</button>
+      <button class="filter-tab" onclick="setCalFilter('year',this)">Este año</button>
+    </div>
+    <div id="eventsList" style="max-height:360px;overflow-y:auto;margin-bottom:13px;"></div>
+    <div class="modal-btns"><button class="modal-btn primary" onclick="closeCalendarModal()">Cerrar</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addEventModal" style="z-index:9999;">
+  <div class="modal">
+    <h3>Anotar <span id="eventActivityName"></span></h3>
+    <div class="modal-field"><label>Ciclo</label>
+      <select id="eventCycle" style="width:100%;padding:9px 12px;border:1.5px solid var(--inp-b);border-radius:8px;background:var(--inp-bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;" onchange="updateEventSubjects()"></select></div>
+    <div class="modal-field"><label>Materia</label>
+      <select id="eventSubject" style="width:100%;padding:9px 12px;border:1.5px solid var(--inp-b);border-radius:8px;background:var(--inp-bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;"></select></div>
+    <div class="modal-field"><label>Fecha</label>
+      <input type="date" id="eventDate" style="width:100%;padding:9px 12px;border:1.5px solid var(--inp-b);border-radius:8px;background:var(--inp-bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;"></div>
+    <div class="modal-field"><label>Comentario (opcional)</label>
+      <input type="text" id="eventComment" placeholder="Ej. Estudiar tema 4..." style="width:100%;padding:9px 12px;border:1.5px solid var(--inp-b);border-radius:8px;background:var(--inp-bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;outline:none;"></div>
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="document.getElementById('addEventModal').classList.remove('open')">Cancelar</button>
+      <button class="modal-btn primary" onclick="saveEvent()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="asistenciaModal">
+  <div class="modal" style="width:540px;">
+    <div class="asist-logos">
+      <img src="univo.png" alt="UNIVO" onerror="this.style.display='none'">
+      <div style="width:1px;height:46px;background:var(--gl);"></div>
+      <img src="logo2.jpg" alt="Dir. Académica" onerror="this.outerHTML='<span style=\'font-size:11px;color:var(--gm);max-width:80px;text-align:center;\'>Dir. Académica UNIVO</span>'">
+    </div>
+    <h3 style="text-align:center;margin-bottom:3px;">🏛 Asistencia Diaria</h3>
+    <p style="text-align:center;margin-bottom:13px;">Dirección Académica · Universidad de Oriente</p>
+    <div class="asist-hoy-box" id="asistenciaHoy"></div>
+    <div style="text-align:center;margin-bottom:16px;"><button class="asist-mark-btn" id="asistenciaBtn" onclick="marcarAsistencia()">✅ Marcar Asistencia de Hoy</button></div>
+    <div class="filter-tabs" id="asistFilterTabs">
+      <button class="filter-tab active" onclick="setAsistFilter('all',this)">Todas</button>
+      <button class="filter-tab" onclick="setAsistFilter('week',this)">Semana</button>
+      <button class="filter-tab" onclick="setAsistFilter('month',this)">Mes</button>
+      <button class="filter-tab" onclick="setAsistFilter('year',this)">Año</button>
+    </div>
+    <div id="asistenciaHistorico" style="max-height:240px;overflow-y:auto;"></div>
+    <div class="modal-btns" style="margin-top:13px;"><button class="modal-btn primary" onclick="document.getElementById('asistenciaModal').classList.remove('open')">Cerrar</button></div>
+  </div>
+</div>
+
+<!-- Historial de cambios del pénsum -->
+<div class="modal-overlay" id="histPensumModal">
+  <div class="modal" style="width:600px;">
+    <h3>📜 Historial de Cambios del Pénsum</h3>
+    <p>Cada cambio de posición queda registrado. Haz clic en cualquiera para restaurar ese estado.</p>
+    <div class="filter-tabs" id="histFilterTabs">
+      <button class="filter-tab active" onclick="setHistFilter('all',this)">Todos</button>
+      <button class="filter-tab" onclick="setHistFilter('week',this)">Semana</button>
+      <button class="filter-tab" onclick="setHistFilter('month',this)">Mes</button>
+      <button class="filter-tab" onclick="setHistFilter('year',this)">Año</button>
+    </div>
+    <div id="histPensumList" style="max-height:380px;overflow-y:auto;margin-bottom:13px;"></div>
+    <div class="modal-btns"><button class="modal-btn primary" onclick="document.getElementById('histPensumModal').classList.remove('open')">Cerrar</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="printArea"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// PENSUM DATA
+// ═══════════════════════════════════════════════════════════
+const CYCLES_DEFAULT = [
+  {id:1,name:"Ciclo I",   year:"I AÑO",  subjects:[
+    {num:"01",code:"101",name:"Matemática I",prereq:"Br.",uv:4},
+    {num:"02",code:"102",name:"Dibujo y Geometría Descriptiva",prereq:"Br.",uv:4},
+    {num:"03",code:"103",name:"Métodos Experimentales",prereq:"Br.",uv:4},
+    {num:"04",code:"104",name:"Informática",prereq:"Br.",uv:4},
+    {num:"05",code:"105",name:"Realidad Nacional",prereq:"Br.",uv:4}
+  ]},
+  {id:2,name:"Ciclo II",  year:"I AÑO",  subjects:[
+    {num:"06",code:"106",name:"Matemática II",prereq:"01",uv:4},
+    {num:"07",code:"107",name:"Diseño Asistido por Computadora I",prereq:"02",uv:4},
+    {num:"08",code:"108",name:"Física I",prereq:"01",uv:4},
+    {num:"09",code:"109",name:"Algebra Lineal y Geometría",prereq:"01",uv:4},
+    {num:"10",code:"110",name:"Inglés I",prereq:"Br.",uv:4}
+  ]},
+  {id:3,name:"Ciclo III", year:"II AÑO", subjects:[
+    {num:"11",code:"111",name:"Matemática III",prereq:"06",uv:4},
+    {num:"12",code:"112",name:"Diseño Asistido por Computadora II",prereq:"07",uv:4},
+    {num:"13",code:"113",name:"Física II",prereq:"08",uv:4},
+    {num:"14",code:"114",name:"Probabilidad y Estadística",prereq:"06",uv:4},
+    {num:"15",code:"115",name:"Ética y Desarrollo Profesional",prereq:"Br.",uv:4}
+  ]},
+  {id:4,name:"Ciclo IV",  year:"II AÑO", subjects:[
+    {num:"16",code:"116",name:"Matemática IV",prereq:"11",uv:4},
+    {num:"17",code:"117",name:"Topografía I",prereq:"12",uv:4},
+    {num:"18",code:"118",name:"Mecánica de Sólidos I",prereq:"13",uv:4},
+    {num:"19",code:"119",name:"Liderazgo y Desarrollo Emprendedor",prereq:"15",uv:4},
+    {num:"20",code:"120",name:"Métodos y Técnicas de Investigación",prereq:"14",uv:4},
+    {num:"21",code:"121",name:"Inglés II",prereq:"10",uv:4}
+  ]},
+  {id:5,name:"Ciclo V",   year:"III AÑO",subjects:[
+    {num:"22",code:"122",name:"Instalaciones Eléctricas",prereq:"13",uv:4},
+    {num:"23",code:"123",name:"Topografía II",prereq:"17",uv:4},
+    {num:"24",code:"124",name:"Mecánica de Sólidos II",prereq:"18",uv:4},
+    {num:"25",code:"125",name:"Mecánica de los Fluidos",prereq:"13",uv:4},
+    {num:"26",code:"126",name:"Ingeniería Económica",prereq:"14",uv:4}
+  ]},
+  {id:6,name:"Ciclo VI",  year:"III AÑO",subjects:[
+    {num:"27",code:"127",name:"Tecnología del Concreto",prereq:"24",uv:4},
+    {num:"28",code:"128",name:"Ingeniería de Carreteras",prereq:"23",uv:4},
+    {num:"29",code:"129",name:"Mecánica de Sólidos III",prereq:"24",uv:4},
+    {num:"30",code:"130",name:"Hidráulica",prereq:"25",uv:4},
+    {num:"31",code:"131",name:"Geología Aplicada",prereq:"Br.",uv:4},
+    {num:"32",code:"132",name:"Inglés III",prereq:"21",uv:4}
+  ]},
+  {id:7,name:"Ciclo VII", year:"IV AÑO", subjects:[
+    {num:"33",code:"133",name:"Evaluación e Impacto Ambiental",prereq:"31",uv:4},
+    {num:"34",code:"134",name:"Planeamiento y Administración de Obras I",prereq:"19",uv:4},
+    {num:"35",code:"135",name:"Mecánica Estructural",prereq:"29",uv:4},
+    {num:"36",code:"136",name:"Abastecimiento de Aguas y Alcantarillados",prereq:"30",uv:4},
+    {num:"37",code:"137",name:"Mecánica de Suelos",prereq:"29",uv:4}
+  ]},
+  {id:8,name:"Ciclo VIII",year:"IV AÑO", subjects:[
+    {num:"38",code:"138",name:"Legislación Profesional",prereq:"Br.",uv:4},
+    {num:"39",code:"139",name:"Formulación y Evaluación de Proyectos",prereq:"26",uv:4},
+    {num:"40",code:"140",name:"Comportamiento Estructural",prereq:"35",uv:4},
+    {num:"41",code:"141",name:"Hidrología",prereq:"30",uv:4},
+    {num:"42",code:"142",name:"Planeamiento y Administración de Obras II",prereq:"34",uv:4}
+  ]},
+  {id:9,name:"Ciclo IX",  year:"V AÑO",  subjects:[
+    {num:"43",code:"143",name:"Planeamiento y Administración de Obras III",prereq:"42",uv:4},
+    {num:"44",code:"144",name:"Proyecto de Ingeniería",prereq:"40",uv:4},
+    {num:"45",code:"145",name:"Diseño Estructural",prereq:"40",uv:4},
+    {num:"46",code:"146",name:"Obras Hidráulicas",prereq:"41",uv:4},
+    {num:"47",code:"147",name:"Gestión de Pavimentos",prereq:"28",uv:4}
+  ]},
+  {id:10,name:"Ciclo X",  year:"V AÑO",  subjects:[
+    {num:"48",code:"148",name:"Cimentaciones",prereq:"37",uv:4},
+    {num:"49",code:"149",name:"Ingeniería Sanitaria",prereq:"36",uv:4},
+    {num:"50",code:"150",name:"Estructuras de Acero",prereq:"45",uv:4},
+    {num:"51",code:"151",name:"Ingeniería de Puentes",prereq:"45",uv:4}
+  ]},
+];
+
+// CYCLES es mutable (se puede reordenar en modo edición)
+let CYCLES = JSON.parse(JSON.stringify(CYCLES_DEFAULT));
+
+// ═══════════════════════════════════════════════════════════
+// UNDO/REDO STACK (para cambios de posición del pénsum)
+// ═══════════════════════════════════════════════════════════
+let undoStack = [];   // cada entrada: {ts, desc, cyclesSnapshot}
+let redoStack = [];
+const MAX_HIST = 60;
+
+function snapshotCycles(desc) {
+  // Guardar snapshot ANTES de hacer el cambio
+  if (undoStack.length >= MAX_HIST) undoStack.shift();
+  undoStack.push({
+    ts: new Date().toISOString(),
+    desc: desc,
+    snapshot: JSON.parse(JSON.stringify(CYCLES))
+  });
+  redoStack = []; // al hacer algo nuevo, limpiar redo
+  updateUndoRedoBtns();
+  saveHistToLocal();
+}
+
+function undoPensum() {
+  if (!undoStack.length) return;
+  // Guardar estado actual en redo
+  redoStack.push({
+    ts: new Date().toISOString(),
+    desc: 'Rehacer',
+    snapshot: JSON.parse(JSON.stringify(CYCLES))
+  });
+  const entry = undoStack.pop();
+  CYCLES = JSON.parse(JSON.stringify(entry.snapshot));
+  updateUndoRedoBtns();
+  saveHistToLocal();
+  renderPensum();
+  showToast('↩ Deshecho: ' + entry.desc, 'success');
+}
+
+function redoPensum() {
+  if (!redoStack.length) return;
+  undoStack.push({
+    ts: new Date().toISOString(),
+    desc: 'Rehacer',
+    snapshot: JSON.parse(JSON.stringify(CYCLES))
+  });
+  const entry = redoStack.pop();
+  CYCLES = JSON.parse(JSON.stringify(entry.snapshot));
+  updateUndoRedoBtns();
+  saveHistToLocal();
+  renderPensum();
+  showToast('↪ Rehecho', 'success');
+}
+
+function updateUndoRedoBtns() {
+  const u = document.getElementById('undoBtn');
+  const r = document.getElementById('redoBtn');
+  if (u) u.disabled = !undoStack.length;
+  if (r) r.disabled = !redoStack.length;
+  if (u && undoStack.length) u.title = '↩ ' + undoStack[undoStack.length-1].desc;
+  if (r && redoStack.length) r.title = '↪ ' + redoStack[redoStack.length-1].desc;
+}
+
+function saveHistToLocal() {
+  if (!currentStudent) return;
+  try {
+    const sd = getStudentData();
+    sd.undoStack = undoStack.slice(-MAX_HIST);
+    sd.cycles = JSON.parse(JSON.stringify(CYCLES));
+    localStorage.setItem('ugb_pensum_appdata', JSON.stringify(appData));
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let currentStudent=null, appData={}, config={};
+let pendingDeleteAction=null, loginMode='name';
+let currentZoom=85, currentCycleId=null;
+let autoSyncTimer=null, autoSyncInterval=null, isAutoSyncing=false;
+let editModeActive=false;
+let calFilter='all', asistFilter='all', histFilter='all';
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+
+// ── JSONP puro — el mismo patrón que funciona sin CORS ──
+// Apps Script responde: callbackName(json);
+// El <script> lo ejecuta y resuelve la Promise
+function _jsonpFetch(url, timeoutMs) {
+  timeoutMs = timeoutMs || 10000;
+  return new Promise(function(resolve, reject) {
+    const cbName = '_ugb_' + Date.now() + '_' + Math.floor(Math.random() * 99999);
+    let settled = false;
+
+    const timer = setTimeout(function() {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error('timeout'));
+    }, timeoutMs);
+
+    window[cbName] = function(data) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      cleanup();
+      resolve(data);
+    };
+
+    function cleanup() {
+      try { delete window[cbName]; } catch(e) {}
+      const s = document.getElementById(cbName);
+      if (s && s.parentNode) s.parentNode.removeChild(s);
+    }
+
+    const sep = url.indexOf('?') >= 0 ? '&' : '?';
+    const script = document.createElement('script');
+    script.id  = cbName;
+    script.src = url + sep + 'callback=' + cbName;
+    script.onerror = function() {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      cleanup();
+      reject(new Error('Script load error'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+// Alias
+function _apsFetch(url, t) { return _jsonpFetch(url, t); }
+
+
+// ══════════════════════════════════════════════════════════════
+// SISTEMA DE CONTRASEÑAS — SHA-256 en el cliente
+// La contraseña nunca viaja ni se guarda como texto plano
+// Solo el hash se compara con lo que está en Sheets
+// ══════════════════════════════════════════════════════════════
+
+// SHA-256 usando la API nativa del navegador (no se necesita librería)
+async function _sha256(text) {
+  const encoder = new TextEncoder();
+  const data    = encoder.encode(text);
+  const hashBuf = await crypto.subtle.digest('SHA-256', data);
+  // Convertir a hex string
+  return Array.from(new Uint8Array(hashBuf))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+// Mostrar/ocultar contraseña
+function togglePassVis() {
+  const inp = document.getElementById('loginPass');
+  const btn = document.getElementById('passVisBtn');
+  if (inp.type === 'password') { inp.type = 'text';     btn.textContent = '🙈'; }
+  else                         { inp.type = 'password'; btn.textContent = '👁';  }
+}
+
+// Verificar o crear contraseña del estudiante
+// Devuelve: 'ok' | 'wrong' | 'new' (primer login, se crea)
+async function _checkPassword(studentName, plainPass) {
+  if (!plainPass) return 'empty';
+  const hash = await _sha256(studentName.toLowerCase().trim() + ':' + plainPass);
+  // El hash es específico del estudiante (se incluye el nombre para que el mismo
+  // pass en distintos usuarios genere hashes distintos)
+
+  // Pedir al servidor el hash guardado
+  try {
+    const res = await _apsFetch(
+      config.appsScriptUrl + '?action=get_hash&student=' + encodeURIComponent(studentName), 8000
+    );
+    if (res && res.status === 'success') {
+      if (!res.hash) {
+        // Primera vez — guardar hash y entrar
+        await _saveHash(studentName, hash);
+        return 'new';
+      }
+      // Comparar hash
+      return res.hash === hash ? 'ok' : 'wrong';
+    }
+  } catch(e) {}
+  return 'error';
+}
+
+// Guardar hash de contraseña en Sheets via POST
+async function _saveHash(studentName, hash) {
+  try {
+    await fetch(config.appsScriptUrl, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'save_hash', student: studentName, hash: hash })
+    });
+  } catch(e) {}
+}
+
+// Mostrar modal de cambio de contraseña
+function openChangePass() {
+  closeHam();
+  const modal = document.getElementById('changePassModal');
+  if (modal) { modal.style.display = 'flex'; return; }
+  // Crear modal dinámicamente
+  const m = document.createElement('div');
+  m.id = 'changePassModal';
+  m.style.cssText = 'position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;';
+  m.innerHTML = `
+    <div style="background:var(--modal-bg);border-radius:18px;padding:30px;width:360px;max-width:93vw;box-shadow:0 24px 60px rgba(0,0,0,.3);">
+      <h3 style="margin:0 0 6px;color:var(--blue-text-dk);font-size:17px;">🔑 Cambiar contraseña</h3>
+      <p style="margin:0 0 18px;font-size:12px;color:var(--gm);">La contraseña se guarda como código cifrado — nadie puede verla.</p>
+      <div class="login-field" style="margin-bottom:12px;">
+        <label>Contraseña actual</label>
+        <input type="password" id="cpOld" placeholder="Contraseña actual">
+      </div>
+      <div class="login-field" style="margin-bottom:12px;">
+        <label>Nueva contraseña</label>
+        <input type="password" id="cpNew" placeholder="Nueva contraseña">
+      </div>
+      <div class="login-field" style="margin-bottom:18px;">
+        <label>Confirmar nueva contraseña</label>
+        <input type="password" id="cpConf" placeholder="Repetir nueva contraseña">
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="doChangePass()"
+          style="flex:1;padding:11px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px;">
+          Cambiar
+        </button>
+        <button onclick="document.getElementById('changePassModal').style.display='none'"
+          style="padding:11px 16px;background:var(--bg);border:1.5px solid var(--gl);border-radius:10px;cursor:pointer;font-size:14px;">
+          Cancelar
+        </button>
+      </div>
+      <div id="cpMsg" style="margin-top:12px;font-size:12px;text-align:center;display:none;"></div>
+    </div>`;
+  document.body.appendChild(m);
+}
+
+async function doChangePass() {
+  const oldP = document.getElementById('cpOld').value;
+  const newP = document.getElementById('cpNew').value;
+  const conf = document.getElementById('cpConf').value;
+  const msg  = document.getElementById('cpMsg');
+
+  const show = (txt, color) => {
+    msg.textContent = txt; msg.style.color = color; msg.style.display = 'block';
+  };
+
+  if (!oldP || !newP || !conf) { show('Completa todos los campos', '#ef4444'); return; }
+  if (newP !== conf)            { show('Las contraseñas nuevas no coinciden', '#ef4444'); return; }
+  if (newP.length < 4)         { show('Mínimo 4 caracteres', '#ef4444'); return; }
+
+  show('Verificando...', 'var(--gm)');
+
+  const check = await _checkPassword(currentStudent, oldP);
+  if (check === 'wrong') { show('Contraseña actual incorrecta', '#ef4444'); return; }
+  if (check === 'error') { show('Error de conexión', '#ef4444'); return; }
+
+  const newHash = await _sha256(currentStudent.toLowerCase().trim() + ':' + newP);
+  await _saveHash(currentStudent, newHash);
+  show('✓ Contraseña cambiada', '#10b981');
+  setTimeout(() => { document.getElementById('changePassModal').style.display = 'none'; }, 1500);
+}
+
+async function init() {
+  appData = {};
+  const defUrl = 'https://script.google.com/macros/s/AKfycbxdlptKa7bXSiIqQmUJZ8TOreDwWTRpz_2hRYTZ-aNJO_Q1hzDvT7Okm8gZrQGdMrG1lg/exec';
+  try { config = JSON.parse(localStorage.getItem('ugb_pensum_config') || '{}'); if (!config.appsScriptUrl) config.appsScriptUrl = defUrl; }
+  catch(e) { config = { appsScriptUrl: defUrl }; }
+  const t = localStorage.getItem('ugb_theme') || 'light';
+  document.getElementById('htmlRoot').setAttribute('data-theme', t);
+  const sz = localStorage.getItem('zoomLevel');
+  if (sz) { currentZoom = parseInt(sz); document.getElementById('zoomSlider').value = currentZoom; }
+
+  // ── CARGAR LISTA DE ESTUDIANTES DESDE SHEETS (con reintentos) ──
+  if (config.appsScriptUrl) {
+    _showLoading('Conectando con Google Sheets...', 'Cargando lista de estudiantes');
+    let loaded = false;
+    // Intentar hasta 3 veces con 2s entre intentos
+    for (let attempt = 1; attempt <= 3 && !loaded; attempt++) {
+      try {
+        if (attempt > 1) _showLoading('Reintentando... (' + attempt + '/3)', 'Cargando lista de estudiantes');
+        const res = await _jsonpFetch(config.appsScriptUrl + '?action=list_students', 10000);
+        if (res && res.status === 'success' && Array.isArray(res.students)) {
+          res.students.forEach(name => {
+            if (!appData[name]) appData[name] = { notas:{}, events:[], cyclesDone:{}, asistencias:{}, specialCards:{}, undoStack:[] };
+          });
+          loaded = true;
+          const n = res.students.length;
+          _showLoading('✓ ' + n + ' estudiante' + (n===1?'':'s') + ' encontrado' + (n===1?'':'s'), 'Abriendo pantalla de login...');
+          await new Promise(r => setTimeout(r, 600));
+        }
+      } catch(e) {
+        if (attempt < 3) await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+    if (!loaded) {
+      _showLoading('⚠️ No se pudo conectar con Sheets', 'Verifica la URL en Configuración');
+      await new Promise(r => setTimeout(r, 1800));
+    }
+    _hideLoading();
+  }
+
+  // Barra de estado
+  const bar    = document.getElementById('sheetsStatusBar');
+  const barOff = document.getElementById('sheetsOfflineBar');
+  if (config.appsScriptUrl) {
+    if (bar)    bar.style.display    = 'block';
+    if (barOff) barOff.style.display = 'none';
+  } else {
+    if (bar)    bar.style.display    = 'none';
+    if (barOff) barOff.style.display = 'block';
+  }
+
+  setLoginMode(loginMode);
+  renderStudentList();
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// BORRAR DATOS — modal granular por categoría
+// ══════════════════════════════════════════════════════════════
+function openDeleteDataModal() {
+  closeHam();
+  // Cerrar si ya existe
+  const existing = document.getElementById('deleteDataModal');
+  if (existing) { existing.remove(); }
+
+  const students = Object.keys(appData);
+  const studentOpts = students.map(s =>
+    `<option value="${s}">${s}</option>`
+  ).join('');
+
+  const m = document.createElement('div');
+  m.id = 'deleteDataModal';
+  m.style.cssText = 'position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:12px;';
+  m.innerHTML = `
+    <div style="background:var(--modal-bg);border-radius:18px;padding:26px;width:420px;max-width:96vw;
+                max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.35);">
+      <h3 style="margin:0 0 4px;color:#dc2626;font-size:17px;">🗑️ Borrar datos</h3>
+      <p style="margin:0 0 16px;font-size:12px;color:var(--gm);">Selecciona estudiante y qué datos eliminar. Esta acción también borra en el servidor.</p>
+
+      <!-- Selector de estudiante -->
+      <div class="login-field" style="margin-bottom:14px;">
+        <label>Estudiante</label>
+        <select id="ddStudent" onchange="ddUpdateSections()"
+          style="width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--gl);
+                 background:var(--bg);color:var(--text);font-size:14px;">
+          <option value="">-- Selecciona --</option>
+          ${studentOpts}
+          <option value="__all__" style="color:#dc2626;font-weight:700;">⚠️ TODOS los estudiantes</option>
+        </select>
+      </div>
+
+      <!-- Secciones a borrar -->
+      <div id="ddSections" style="display:none;">
+        <p style="font-size:12px;font-weight:700;color:var(--text);margin:0 0 8px;">¿Qué deseas borrar?</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid var(--gl);cursor:pointer;font-size:13px;">
+            <input type="checkbox" id="ddNotas" style="width:16px;height:16px;accent-color:#dc2626;">
+            <span>📊 Notas y cómputos</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid var(--gl);cursor:pointer;font-size:13px;">
+            <input type="checkbox" id="ddCalendario" style="width:16px;height:16px;accent-color:#dc2626;">
+            <span>📅 Eventos del calendario</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid var(--gl);cursor:pointer;font-size:13px;">
+            <input type="checkbox" id="ddCiclos" style="width:16px;height:16px;accent-color:#dc2626;">
+            <span>✅ Ciclos finalizados</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid var(--gl);cursor:pointer;font-size:13px;">
+            <input type="checkbox" id="ddEspecial" style="width:16px;height:16px;accent-color:#dc2626;">
+            <span>⭐ Marcas especiales</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid var(--gl);cursor:pointer;font-size:13px;">
+            <input type="checkbox" id="ddAsistencias" style="width:16px;height:16px;accent-color:#dc2626;">
+            <span>📋 Asistencias</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:2px solid #dc2626;cursor:pointer;font-size:13px;background:rgba(220,38,38,.05);"
+                 onclick="ddToggleAll(this)">
+            <input type="checkbox" id="ddTodo" style="width:16px;height:16px;accent-color:#dc2626;">
+            <span style="color:#dc2626;font-weight:700;">🗑️ TODO (eliminar estudiante completo)</span>
+          </label>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+          <button onclick="ddConfirm()"
+            style="flex:1;padding:11px;background:#dc2626;color:#fff;border:none;border-radius:10px;
+                   font-weight:700;cursor:pointer;font-size:14px;">
+            Borrar seleccionado
+          </button>
+          <button onclick="document.getElementById('deleteDataModal').remove()"
+            style="padding:11px 16px;background:var(--bg);border:1.5px solid var(--gl);
+                   border-radius:10px;cursor:pointer;font-size:14px;">
+            Cancelar
+          </button>
+        </div>
+        <div id="ddMsg" style="margin-top:10px;font-size:12px;text-align:center;display:none;"></div>
+      </div>
+    </div>`;
+  document.body.appendChild(m);
+  // Cerrar al hacer clic fuera
+  m.addEventListener('click', e => { if(e.target===m) m.remove(); });
+}
+
+function ddUpdateSections() {
+  const sel = document.getElementById('ddStudent').value;
+  document.getElementById('ddSections').style.display = sel ? 'block' : 'none';
+}
+
+function ddToggleAll(label) {
+  const cb = document.getElementById('ddTodo');
+  // El check ya cambió, propagar a los demás
+  setTimeout(() => {
+    const checked = cb.checked;
+    ['ddNotas','ddCalendario','ddCiclos','ddEspecial','ddAsistencias'].forEach(id => {
+      document.getElementById(id).checked = checked;
+    });
+  }, 0);
+}
+
+async function ddConfirm() {
+  const student = document.getElementById('ddStudent').value;
+  const delNotas      = document.getElementById('ddNotas').checked;
+  const delCalendario = document.getElementById('ddCalendario').checked;
+  const delCiclos     = document.getElementById('ddCiclos').checked;
+  const delEspecial   = document.getElementById('ddEspecial').checked;
+  const delAsistencias= document.getElementById('ddAsistencias').checked;
+  const delTodo       = document.getElementById('ddTodo').checked;
+  const msg           = document.getElementById('ddMsg');
+
+  const show = (txt, color) => {
+    msg.textContent = txt; msg.style.color = color; msg.style.display = 'block';
+  };
+
+  if (!student) { show('Selecciona un estudiante', '#dc2626'); return; }
+  if (!delNotas && !delCalendario && !delCiclos && !delEspecial && !delAsistencias && !delTodo) {
+    show('Selecciona al menos un tipo de dato', '#dc2626'); return;
+  }
+
+  const targets = student === '__all__' ? Object.keys(appData) : [student];
+  const what = delTodo ? 'TODO el perfil' :
+    [delNotas&&'notas',delCalendario&&'calendario',delCiclos&&'ciclos',
+     delEspecial&&'especiales',delAsistencias&&'asistencias'].filter(Boolean).join(', ');
+
+  const confirmMsg = student === '__all__'
+    ? `¿Borrar ${what} de TODOS los estudiantes (${targets.length})?\nEsto también borrará en el servidor.`
+    : `¿Borrar ${what} de "${student}"?\nEsto también borrará en el servidor.`;
+
+  if (!confirm(confirmMsg)) return;
+  show('⏳ Borrando...', 'var(--gm)');
+
+  for (const name of targets) {
+    if (!appData[name]) continue;
+
+    if (delTodo) {
+      // Eliminar estudiante completo del servidor
+      if (config.appsScriptUrl) {
+        try {
+          await fetch(config.appsScriptUrl, {
+            method:'POST', mode:'no-cors',
+            headers:{'Content-Type':'text/plain'},
+            body: JSON.stringify({ action:'delete_student', student: name })
+          });
+        } catch(e) {}
+      }
+      delete appData[name];
+    } else {
+      const sd = appData[name];
+      if (delNotas)       { sd.notas = {}; }
+      if (delCalendario)  { sd.events = []; }
+      if (delCiclos)      { sd.cyclesDone = {}; }
+      if (delEspecial)    { sd.specialCards = {}; }
+      if (delAsistencias) { sd.asistencias = {}; }
+      // Subir el estado limpio al servidor
+      if (name === currentStudent) {
+        _markDirty();
+        await syncToSheets(true);
+      } else if (config.appsScriptUrl) {
+        // Para otros estudiantes: enviar payload vacío
+        try {
+          await fetch(config.appsScriptUrl, {
+            method:'POST', mode:'no-cors',
+            headers:{'Content-Type':'text/plain'},
+            body: JSON.stringify({
+              student: name,
+              data: [],
+              events: sd.events||[],
+              cyclesDone: sd.cyclesDone||{},
+              asistencias: sd.asistencias||{},
+              specialCards: sd.specialCards||{}
+            })
+          });
+        } catch(e) {}
+      }
+    }
+  }
+
+  // Si el usuario actual fue borrado, volver al login
+  if (delTodo && targets.includes(currentStudent)) {
+    show('✓ Datos borrados. Volviendo al login...', '#10b981');
+    setTimeout(() => {
+      document.getElementById('deleteDataModal').remove();
+      changeStudent();
+    }, 1200);
+    return;
+  }
+
+  // Actualizar vista si el usuario actual fue afectado
+  if (targets.includes(currentStudent)) {
+    renderPensum();
+    updateStats();
+  }
+  renderStudentList();
+  show('✓ Borrado completado', '#10b981');
+  setTimeout(() => document.getElementById('deleteDataModal').remove(), 1500);
+}
+
+function limpiarCache() {
+  if (!confirm('¿Limpiar caché local y recargar datos desde Sheets?\nEsto no borra datos del servidor.')) return;
+  // Borrar solo datos locales (no config ni tema)
+  localStorage.removeItem('ugb_pensum_appdata');
+  localStorage.removeItem('ugb_last_student');
+  showToast('🧹 Caché limpiado — recargando...', 'success');
+  setTimeout(() => location.reload(), 800);
+}
+
+async function recargarLista() {
+  if (!config.appsScriptUrl) {
+    showToast('Configura la URL de Sheets primero', 'error');
+    openConfig();
+    return;
+  }
+  const statusEl = document.getElementById('listLoadStatus');
+  if (statusEl) statusEl.textContent = '⏳ Cargando...';
+  try {
+    const res = await _jsonpFetch(config.appsScriptUrl + '?action=list_students', 10000);
+    if (res && res.status === 'success' && Array.isArray(res.students)) {
+      appData = {};
+      res.students.forEach(name => {
+        appData[name] = { notas:{}, events:[], cyclesDone:{}, asistencias:{}, specialCards:{}, undoStack:[] };
+      });
+      renderStudentList();
+      if (statusEl) statusEl.textContent = '✓ ' + res.students.length + ' encontrado(s)';
+      setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 3000);
+    } else {
+      if (statusEl) statusEl.textContent = '✗ Respuesta inesperada';
+    }
+  } catch(e) {
+    if (statusEl) statusEl.textContent = '✗ Sin conexión';
+    showToast('No se pudo conectar con Sheets', 'error');
+  }
+}
+
+function setLoginMode(m) {
+  loginMode=m;
+  document.getElementById('loginNameField').style.display=m==='name'?'block':'none';
+  document.getElementById('loginButton').style.display=m==='name'?'block':'none';
+  document.getElementById('loginSubtitle').textContent=m==='name'?'Ingresa nombre del estudiante':'Selecciona un estudiante';
+  document.getElementById('loginModeName').classList.toggle('active',m==='name');
+  document.getElementById('loginModeList').classList.toggle('active',m==='list');
+  renderStudentList();
+}
+
+function renderStudentList() {
+  const list = document.getElementById('studentList');
+  const students = Object.keys(appData);
+  const count = students.length;
+
+  if (!count) {
+    list.innerHTML = `
+      <div style="text-align:center;padding:18px 10px;color:var(--gm);">
+        <div style="font-size:28px;margin-bottom:8px;">📭</div>
+        <div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:5px;">No hay estudiantes en el servidor</div>
+        <div style="font-size:12px;">Ingresa un nombre arriba y presiona <b>Entrar</b> para crear uno.<br>El primer guardado registra al estudiante en la nube.</div>
+      </div>`;
+    return;
+  }
+
+  let h = `<div style="font-size:11px;color:var(--gm);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">
+    👥 Estudiantes en el servidor (${count})
+  </div>`;
+  students.forEach(n => {
+    const safe = n.replace(/'/g, "\\'");
+    h += `<div class="student-chip" onclick="loginFromList('${safe}')" title="Ingresar como ${escapeHtml(n)}">
+      <span>👤 ${escapeHtml(n)}</span>
+      <button class="del-btn" onclick="event.stopPropagation();deleteStudent('${safe}')" title="Eliminar">×</button>
+    </div>`;
+  });
+  list.innerHTML = h;
+}
+
+
+// Login desde la lista: pone el nombre y enfoca el password
+function loginFromList(name) {
+  document.getElementById('loginName').value = name;
+  const passEl = document.getElementById('loginPass');
+  if (passEl) {
+    passEl.value = '';
+    passEl.focus();
+    // Cambiar a modo nombre si estamos en lista
+    setLoginMode('name');
+    document.getElementById('loginName').value = name;
+  }
+  showToast('Ingresa la contraseña de ' + name, 'success');
+}
+
+async function doLogin() {
+  if (loginMode === 'list') { showToast('Selecciona un estudiante de la lista', 'error'); return; }
+  const n    = document.getElementById('loginName').value.trim();
+  const pass = document.getElementById('loginPass') ? document.getElementById('loginPass').value : '';
+  if (!n)    { showToast('Ingresa un nombre', 'error'); return; }
+  if (!pass) { showToast('Ingresa tu contraseña', 'error'); document.getElementById('loginPass').focus(); return; }
+
+  _showLoading('Verificando identidad...', 'Comprobando contraseña');
+
+  const result = await _checkPassword(n, pass);
+
+  if (result === 'wrong') {
+    _hideLoading();
+    showToast('❌ Contraseña incorrecta', 'error');
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginPass').focus();
+    return;
+  }
+  if (result === 'empty') {
+    _hideLoading();
+    showToast('Ingresa una contraseña', 'error');
+    return;
+  }
+  if (result === 'error') {
+    _hideLoading();
+    showToast('⚠️ No se pudo verificar — sin conexión', 'error');
+    return;
+  }
+  // 'ok' o 'new' — entrar
+  if (result === 'new') showToast('✓ Contraseña creada — guárdala bien', 'success');
+  selectStudent(n);
+}
+
+async function selectStudent(name) {
+  currentStudent = name;
+
+  // Crear la estructura local ANTES de la descarga para que
+  // `local.notas[...] = ...` no falle con "Cannot read property of undefined".
+  if (!appData[name]) appData[name] = {notas:{}, events:[], cyclesDone:{}, asistencias:{}, specialCards:{}, undoStack:[]};
+  if (!appData[name].cyclesDone)   appData[name].cyclesDone   = {};
+  if (!appData[name].specialCards) appData[name].specialCards = {};
+  if (!appData[name].asistencias)  appData[name].asistencias  = {};
+
+  // ── PANTALLA DE CARGA ──
+  _showLoading('Cargando datos de ' + name + '...', 'Descargando desde Google Sheets');
+
+  // ── SIEMPRE DESCARGAR DESDE SHEETS (fuente de verdad) ──
+  let _downloadOk = false;
+  if (config.appsScriptUrl) {
+    try {
+      const res = await _jsonpFetch(config.appsScriptUrl + '?student=' + encodeURIComponent(name), 9000);
+      if (res && res.status === 'success' && res.payload) {
+        const d = res.payload;
+        const local = appData[name];
+        // Notas
+        (d.data || []).forEach(row => {
+          local.notas[row.num] = {
+            status: row.status,
+            finalGrade: row.finalGrade === '' ? null : parseFloat(row.finalGrade),
+            computos: [
+              { lab1: row.lab1_c1, lab2: row.lab2_c1, parcial: row.parcial_c1 },
+              { lab1: row.lab1_c2, lab2: row.lab2_c2, parcial: row.parcial_c2 },
+              { lab1: row.lab1_c3, lab2: row.lab2_c3, parcial: row.parcial_c3 }
+            ]
+          };
+        });
+        // Eventos, ciclos, asistencias — Sheets tiene prioridad
+        if (d.events && d.events.length)   local.events = d.events;
+        if (d.cyclesDone)  Object.assign(local.cyclesDone,  d.cyclesDone);
+        if (d.asistencias) Object.assign(local.asistencias, d.asistencias);
+        if (d.specialCards) local.specialCards = d.specialCards;
+        if (d.cycles) local.cycles = d.cycles;
+        _downloadOk = true;
+        _showLoading('¡Todo al día!', 'Abriendo pénsum...');
+        await new Promise(r => setTimeout(r, 400));
+      } else {
+        _showLoading('Sin datos en Sheets', 'Iniciando pénsum vacío...');
+        await new Promise(r => setTimeout(r, 600));
+      }
+    } catch(e) {
+      console.error('Error descargando datos de Sheets:', e);
+      _showLoading('Sin conexión', 'Usando copia local...');
+      await new Promise(r => setTimeout(r, 700));
+    }
+  } else {
+    _showLoading('Sin Sheets configurado', 'Modo local...');
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  // Restaurar ciclos
+  const sd = appData[name];
+  if (sd.cycles) { try { CYCLES = JSON.parse(JSON.stringify(sd.cycles)); } catch(e) { CYCLES = JSON.parse(JSON.stringify(CYCLES_DEFAULT)); } }
+  else CYCLES = JSON.parse(JSON.stringify(CYCLES_DEFAULT));
+  undoStack = (sd.undoStack || []);
+  redoStack = [];
+  updateUndoRedoBtns();
+
+  // ── MOSTRAR APP ──
+  _hideLoading();
+  document.getElementById('loginView').style.display = 'none';
+  document.getElementById('appView').style.display   = 'block';
+  document.getElementById('bottomBar').style.display = 'flex';
+  document.getElementById('currentStudentName').textContent = '👤 ' + name;
+
+  if (config.appsScriptUrl && !_downloadOk) {
+    document.getElementById('syncStatus').textContent = '⚠️ Sin datos del servidor';
+    showToast('⚠️ No se pudo descargar tu información. Revisa tu conexión y usa "Refrescar desde Sheets" antes de editar.', 'error');
+    renderPensum();
+    _pendingUpload = false;
+    autoFetchInterval = setInterval(() => {
+      if (!_isFetching && !_isSyncing && currentStudent && config.appsScriptUrl) _silentFetch();
+    }, 2500);
+    return;
+  }
+
+  if (config.appsScriptUrl) document.getElementById('syncStatus').textContent = '✓ Sheets activo';
+  renderPensum();
+  _pendingUpload = false; // recién bajamos todo, no hay nada pendiente
+  startAutoSyncInterval();
+}
+
+// ── LOADING HELPERS ──
+function _showLoading(msg, sub) {
+  let ov = document.getElementById('loadingOverlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'loadingOverlay';
+    ov.innerHTML = `
+      <img src="univo.png" alt="UNIVO"
+           style="height:80px;object-fit:contain;"
+           onerror="this.style.display='none'">
+      <div id="loadingMsg"  style="color:#fff;font-size:18px;font-weight:800;">Cargando...</div>
+      <div style="width:46px;height:46px;border:4px solid rgba(255,255,255,.22);border-top-color:#fff;
+                  border-radius:50%;animation:loadSpin .75s linear infinite;"></div>
+      <div id="loadingSubMsg" style="color:rgba(255,255,255,.6);font-size:12px;"></div>
+      <style>@keyframes loadSpin{to{transform:rotate(360deg);}}</style>`;
+    ov.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#1e3a5f,#d4a017);align-items:center;justify-content:center;flex-direction:column;gap:18px;';
+    document.body.appendChild(ov);
+  }
+  document.getElementById('loadingMsg').textContent    = msg || 'Cargando...';
+  document.getElementById('loadingSubMsg').textContent = sub || '';
+  ov.style.display = 'flex';
+}
+function _hideLoading() {
+  const ov = document.getElementById('loadingOverlay');
+  if (ov) ov.style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODAL BORRAR DATOS — selección granular por usuario y tipo
+// ══════════════════════════════════════════════════════════════
+function openDeleteDataModal() {
+  closeHam();
+  // Remover modal anterior si existe
+  const old = document.getElementById('deleteDataModal');
+  if (old) old.remove();
+
+  const students = Object.keys(appData);
+  const currentSt = currentStudent || '';
+
+  const studentOptions = students.map(s =>
+    `<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;
+      background:${s===currentSt?'rgba(212,160,23,.15)':'transparent'};margin-bottom:4px;font-size:13px;">
+      <input type="checkbox" class="del-student-cb" value="${s.replace(/"/g,'&quot;')}"
+        ${s===currentSt?'checked':''} style="width:15px;height:15px;accent-color:#1e3a5f;">
+      <span>👤 ${s}</span>
+    </label>`
+  ).join('');
+
+  const m = document.createElement('div');
+  m.id = 'deleteDataModal';
+  m.style.cssText = 'position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px;';
+  m.innerHTML = `
+    <div style="background:var(--modal-bg);border-radius:20px;padding:28px;width:420px;max-width:95vw;
+                max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.4);">
+      <h3 style="margin:0 0 4px;color:#dc2626;font-size:18px;">🗑️ Borrar datos</h3>
+      <p style="margin:0 0 18px;font-size:12px;color:var(--gm);">Selecciona qué datos eliminar. Esta acción borrará del servidor.</p>
+
+      <!-- Selección de estudiantes -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gm);text-transform:uppercase;
+                    letter-spacing:.5px;margin-bottom:8px;">Estudiante(s)</div>
+        <div style="border:1.5px solid var(--gl);border-radius:10px;padding:8px;max-height:140px;overflow-y:auto;">
+          ${students.length ? studentOptions : '<div style="color:var(--gm);text-align:center;padding:12px;font-size:12px;">No hay estudiantes</div>'}
+        </div>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <button onclick="document.querySelectorAll('.del-student-cb').forEach(c=>c.checked=true)"
+            style="flex:1;padding:5px;font-size:11px;border:1px solid var(--gl);border-radius:6px;cursor:pointer;background:var(--bg);color:var(--text);">
+            Todos
+          </button>
+          <button onclick="document.querySelectorAll('.del-student-cb').forEach(c=>c.checked=false)"
+            style="flex:1;padding:5px;font-size:11px;border:1px solid var(--gl);border-radius:6px;cursor:pointer;background:var(--bg);color:var(--text);">
+            Ninguno
+          </button>
+        </div>
+      </div>
+
+      <!-- Qué datos borrar -->
+      <div style="margin-bottom:20px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gm);text-transform:uppercase;
+                    letter-spacing:.5px;margin-bottom:8px;">Datos a borrar</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          ${[
+            ['del-notas','📝 Notas y cómputos'],
+            ['del-calendar','📅 Calendario'],
+            ['del-cycles','✅ Ciclos finalizados'],
+            ['del-asist','🕐 Asistencias'],
+            ['del-special','⭐ Especiales'],
+            ['del-all','🗑️ TODO (incluye cuenta)'],
+          ].map(([id,lbl])=>`
+            <label style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:8px;
+              border:1.5px solid var(--gl);cursor:pointer;font-size:12px;font-weight:600;
+              ${id==='del-all'?'grid-column:1/-1;border-color:#dc2626;color:#dc2626;':''}" >
+              <input type="checkbox" id="${id}" style="width:14px;height:14px;
+                accent-color:${id==='del-all'?'#dc2626':'#1e3a5f'};">
+              ${lbl}
+            </label>`).join('')}
+        </div>
+        <p style="font-size:10px;color:#dc2626;margin:8px 0 0;">
+          ⚠️ "TODO" elimina la cuenta del estudiante del servidor permanentemente.
+        </p>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <button onclick="ejecutarBorrado()"
+          style="flex:1;padding:12px;background:#dc2626;color:#fff;border:none;border-radius:10px;
+                 font-weight:800;cursor:pointer;font-size:14px;">
+          🗑️ Borrar selección
+        </button>
+        <button onclick="document.getElementById('deleteDataModal').remove()"
+          style="padding:12px 16px;background:var(--bg);border:1.5px solid var(--gl);
+                 border-radius:10px;cursor:pointer;font-size:14px;">
+          Cancelar
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(m);
+  // Cerrar al hacer clic fuera
+  m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+}
+
+async function ejecutarBorrado() {
+  const selected = [...document.querySelectorAll('.del-student-cb:checked')].map(c => c.value);
+  if (!selected.length) { showToast('Selecciona al menos un estudiante','error'); return; }
+
+  const delNotas   = document.getElementById('del-notas')?.checked;
+  const delCal     = document.getElementById('del-calendar')?.checked;
+  const delCiclos  = document.getElementById('del-cycles')?.checked;
+  const delAsist   = document.getElementById('del-asist')?.checked;
+  const delSpecial = document.getElementById('del-special')?.checked;
+  const delAll     = document.getElementById('del-all')?.checked;
+
+  if (!delNotas && !delCal && !delCiclos && !delAsist && !delSpecial && !delAll) {
+    showToast('Selecciona qué datos borrar','error'); return;
+  }
+
+  const tipos = [];
+  if (delAll)     tipos.push('cuenta completa');
+  else {
+    if (delNotas)   tipos.push('notas');
+    if (delCal)     tipos.push('calendario');
+    if (delCiclos)  tipos.push('ciclos');
+    if (delAsist)   tipos.push('asistencias');
+    if (delSpecial) tipos.push('especiales');
+  }
+
+  if (!confirm(`¿Borrar ${tipos.join(', ')} de:
+${selected.join(', ')}?
+
+Esta acción NO se puede deshacer.`)) return;
+
+  document.getElementById('deleteDataModal').remove();
+  _showLoading('Borrando datos...', 'Conectando con el servidor');
+
+  for (const name of selected) {
+    if (!appData[name]) appData[name] = {notas:{},events:[],cyclesDone:{},asistencias:{},specialCards:{},undoStack:[]};
+    const sd = appData[name];
+
+    if (delAll) {
+      // Borrar cuenta completa del servidor
+      try {
+        await fetch(config.appsScriptUrl, {
+          method:'POST', mode:'no-cors',
+          headers:{'Content-Type':'text/plain'},
+          body: JSON.stringify({ action:'delete_student', student: name })
+        });
+      } catch(e) {}
+      delete appData[name];
+      if (currentStudent === name) { currentStudent = null; }
+    } else {
+      // Borrar solo lo seleccionado localmente
+      if (delNotas)   { sd.notas = {}; sd.undoStack = []; }
+      if (delCal)     { sd.events = []; }
+      if (delCiclos)  { sd.cyclesDone = {}; }
+      if (delAsist)   { sd.asistencias = {}; }
+      if (delSpecial) { sd.specialCards = {}; }
+      // Subir cambios al servidor
+      try {
+        await syncToSheets(true);
+      } catch(e) {}
+    }
+  }
+
+  _hideLoading();
+
+  // Si el usuario actual fue eliminado completamente, volver al login
+  if (!currentStudent || !appData[currentStudent]) {
+    showToast('✓ Datos borrados — volviendo al login','success');
+    setTimeout(() => changeStudent(), 800);
+  } else {
+    renderPensum();
+    renderStudentList();
+    showToast('✓ Datos borrados correctamente','success');
+  }
+}
+
+function changeStudent() {
+  currentStudent=null;
+  localStorage.removeItem('ugb_last_student');
+  document.getElementById('loginView').style.display='flex';
+  document.getElementById('appView').style.display='none';
+  document.getElementById('bottomBar').style.display='none';
+  document.getElementById('loginName').value='';
+  const _pEl=document.getElementById('loginPass'); if(_pEl)_pEl.value='';
+  stopAutoSyncInterval();
+  renderStudentList();
+}
+
+async function deleteStudent(name) {
+  const pw = prompt('Contraseña para eliminar:');
+  if (pw !== '747') { showToast('Contraseña incorrecta', 'error'); return; }
+  if (!confirm('¿Eliminar a ' + name + ' del servidor y localmente?')) return;
+
+  // Enviar borrado al servidor
+  if (config.appsScriptUrl) {
+    try {
+      await fetch(config.appsScriptUrl, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'delete_student', student: name })
+      });
+    } catch(e) {}
+  }
+
+  delete appData[name];
+  renderStudentList();
+  showToast('✓ ' + name + ' eliminado', 'success');
+}
+
+function getStudentData(){ return appData[currentStudent]||{notas:{}}; }
+function getSubjectData(num) {
+  const sd=getStudentData();
+  if(!sd.notas[num]) sd.notas[num]={computos:[{lab1:'',lab2:'',parcial:''},{lab1:'',lab2:'',parcial:''},{lab1:'',lab2:'',parcial:''}],status:'pending',finalGrade:null};
+  return sd.notas[num];
+}
+function escapeHtml(s){return (s||'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+
+// ═══════════════════════════════════════════════════════════
+// AUTOSAVE & SYNC  (instantáneo al localStorage, 1s debounce a Sheets)
+// ═══════════════════════════════════════════════════════════
+function saveLocal(triggerSync=true) {
+  if(!currentStudent) return;
+  const sd=getStudentData();
+  sd.cycles=JSON.parse(JSON.stringify(CYCLES));
+  sd.undoStack=undoStack.slice(-MAX_HIST);
+  // NO guardamos en localStorage — Sheets es la única fuente de verdad
+  document.getElementById('autoSaveTick').textContent='💾 '+new Date().toLocaleTimeString();
+  _markDirty(); // marcar que hay cambios por subir
+  if(triggerSync) triggerAutoSync();
+}
+
+function triggerAutoSync() {
+  if(!config.appsScriptUrl||!currentStudent) return;
+  _markDirty();
+  clearTimeout(autoSyncTimer);
+  const st=document.getElementById('syncStatus');
+  if(st) st.textContent='⏳ Guardando...';
+  autoSyncTimer=setTimeout(()=>syncToSheets(true),400);
+}
+
+// ── FLAGS SEPARADOS para subida y bajada ──
+let autoFetchInterval = null;
+let _isSyncing  = false;  // flag para SUBIR
+let _isFetching = false;  // flag para BAJAR (INDEPENDIENTE)
+let _pendingUpload = false; // hay cambios sin subir
+let _calendarModalOpen = false; // evita que el auto-fetch reescriba el calendario mientras el usuario lo edita
+
+function startAutoSyncInterval() {
+  if (!config.appsScriptUrl || !currentStudent) return;
+  stopAutoSyncInterval();
+
+  // SUBIR a Sheets cada 1.5s (solo si hay cambios pendientes)
+  autoSyncInterval = setInterval(async () => {
+    if (_isSyncing || _isFetching || !_pendingUpload || !currentStudent || !config.appsScriptUrl) return;
+    _isSyncing = true;
+    _pendingUpload = false;
+    try { await syncToSheets(true); } catch(e) { _pendingUpload = true; }
+    finally { _isSyncing = false; }
+  }, 1500);
+
+  // BAJAR de Sheets cada 2.5s — NUNCA mientras hay una subida en curso,
+  // porque el GS borra y reescribe la hoja (clearContents + setValues),
+  // y leer a mitad de esa operación devuelve datos vacíos/parciales.
+  autoFetchInterval = setInterval(() => {
+    if (!_isFetching && !_isSyncing && currentStudent && config.appsScriptUrl) {
+      _silentFetch();
+    }
+  }, 2500);
+
+  // Primera bajada inmediata al entrar
+  setTimeout(() => _silentFetch(), 800);
+}
+
+function stopAutoSyncInterval() {
+  if (autoSyncInterval)  { clearInterval(autoSyncInterval);  autoSyncInterval  = null; }
+  if (autoFetchInterval) { clearInterval(autoFetchInterval); autoFetchInterval = null; }
+  _isSyncing = false; _isFetching = false;
+}
+
+// Marcar que hay cambios pendientes de subir
+function _markDirty() {
+  _pendingUpload = true;
+}
+
+// ── DESCARGA SILENCIOSA — siempre corre, nunca bloquea la subida ──
+async function _silentFetch() {
+  if (_isFetching || !currentStudent || !config.appsScriptUrl) return;
+  _isFetching = true;
+  try {
+    const res = await _jsonpFetch(config.appsScriptUrl + '?student=' + encodeURIComponent(currentStudent), 8000);
+    if (!res || res.status !== 'success' || !res.payload) return;
+
+    const d     = res.payload;
+    const local = appData[currentStudent];
+    if (!local) return;
+    if (!local.notas) local.notas = {};
+    let changed = false;
+
+    // ── Notas: reemplazar siempre con lo que viene de Sheets ──
+    if (d.data && d.data.length > 0) {
+      d.data.forEach(row => {
+        const remoteStatus = row.status || 'pending';
+        const remoteGrade  = (row.finalGrade === '' || row.finalGrade === null || row.finalGrade === undefined)
+                             ? null : parseFloat(row.finalGrade);
+        const cur = local.notas[row.num];
+        const curStatus = cur ? cur.status : 'pending';
+        const curGrade  = cur ? cur.finalGrade : null;
+        if (!cur || curStatus !== remoteStatus || String(curGrade) !== String(remoteGrade)) {
+          local.notas[row.num] = {
+            status: remoteStatus,
+            finalGrade: remoteGrade,
+            computos: [
+              { lab1: row.lab1_c1, lab2: row.lab2_c1, parcial: row.parcial_c1 },
+              { lab1: row.lab1_c2, lab2: row.lab2_c2, parcial: row.parcial_c2 },
+              { lab1: row.lab1_c3, lab2: row.lab2_c3, parcial: row.parcial_c3 }
+            ]
+          };
+          changed = true;
+        }
+      });
+    }
+
+    // ── Eventos (calendario) ──
+    // Defensa: no sobrescribir con vacío si localmente había eventos,
+    // y nunca tocar mientras el usuario tiene el modal de calendario abierto.
+    if (d.events !== undefined && !_calendarModalOpen) {
+      const remoteHasEvents = d.events && d.events.length > 0;
+      const localHasEvents  = local.events && local.events.length > 0;
+      if (remoteHasEvents || !localHasEvents) {
+        if (JSON.stringify(d.events || []) !== JSON.stringify(local.events || [])) {
+          local.events = d.events || [];
+          changed = true;
+        }
+      }
+    }
+
+    // ── Ciclos finalizados — comparar JSON completo ──
+    // Defensa: si el servidor devuelve {} pero localmente había datos,
+    // probablemente se leyó a mitad de una escritura en el GS — ignorar.
+    if (d.cyclesDone !== undefined) {
+      const remoteHasData = d.cyclesDone && Object.keys(d.cyclesDone).length > 0;
+      const localHasData  = local.cyclesDone && Object.keys(local.cyclesDone).length > 0;
+      if (remoteHasData || !localHasData) {
+        const remCD = JSON.stringify(d.cyclesDone || {});
+        const locCD = JSON.stringify(local.cyclesDone || {});
+        if (remCD !== locCD) {
+          local.cyclesDone = d.cyclesDone || {};
+          changed = true;
+        }
+      }
+    }
+
+    // ── SpecialCards (amarillo) ──
+    if (d.specialCards !== undefined) {
+      if (!local.specialCards) local.specialCards = {};
+      const remoteHasSC = d.specialCards && Object.keys(d.specialCards).length > 0;
+      const localHasSC  = Object.keys(local.specialCards).length > 0;
+      if (remoteHasSC || !localHasSC) {
+        const remSC = JSON.stringify(d.specialCards || {});
+        const locSC = JSON.stringify(local.specialCards);
+        if (remSC !== locSC) {
+          local.specialCards = d.specialCards || {};
+          changed = true;
+        }
+      }
+    }
+
+    // ── Asistencias ──
+    if (d.asistencias !== undefined) {
+      if (!local.asistencias) local.asistencias = {};
+      const remoteHasA = d.asistencias && Object.keys(d.asistencias).length > 0;
+      const localHasA  = Object.keys(local.asistencias).length > 0;
+      if (remoteHasA || !localHasA) {
+        const remA = JSON.stringify(d.asistencias || {});
+        const locA = JSON.stringify(local.asistencias);
+        if (remA !== locA) {
+          local.asistencias = d.asistencias || {};
+          changed = true;
+        }
+      }
+    }
+
+    const st = document.getElementById('syncStatus');
+    if (changed) {
+      renderPensum();
+      if (st) st.textContent = '🔄 sync ' + new Date().toLocaleTimeString();
+    } else {
+      if (st) st.textContent = '✓ ' + new Date().toLocaleTimeString();
+    }
+  } catch(e) {
+    const st = document.getElementById('syncStatus');
+    if (st) st.textContent = '⚠️ Sin conexión';
+  } finally {
+    _isFetching = false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// THEME & HAM
+// ═══════════════════════════════════════════════════════════
+function toggleTheme(){
+  const c=document.getElementById('htmlRoot').getAttribute('data-theme')||'light';
+  const n=c==='dark'?'light':'dark';
+  document.getElementById('htmlRoot').setAttribute('data-theme',n);
+  localStorage.setItem('ugb_theme',n);
+}
+function toggleHam(){document.getElementById('hamMenu').classList.toggle('open');}
+function closeHam(){document.getElementById('hamMenu').classList.remove('open');}
+document.addEventListener('click',e=>{const w=document.querySelector('.ham-wrap');if(w&&!w.contains(e.target))closeHam();});
+
+// ═══════════════════════════════════════════════════════════
+// GRADE CALC
+// ═══════════════════════════════════════════════════════════
+function calcComputo(c){const l1=parseFloat(c.lab1),l2=parseFloat(c.lab2),p=parseFloat(c.parcial);if(isNaN(l1)&&isNaN(l2)&&isNaN(p))return null;return(isNaN(l1)?0:l1*.3)+(isNaN(l2)?0:l2*.3)+(isNaN(p)?0:p*.4);}
+function calcFinal(computos){const s=computos.map(calcComputo);if(!s.some(x=>x!==null))return null;return s.reduce((a,b)=>a+(b===null?0:b),0)/3;}
+function getStatus(grade,computos){if(grade===null){return(computos||[]).some(c=>c.lab1!==''||c.lab2!==''||c.parcial!=='')?'inprogress':'pending';}return grade>=6.0?'pass':'fail';}
+
+// Versión que usa el status/finalGrade guardado en Sheets como respaldo
+function getEffectiveGrade(subData) {
+  const calc = calcFinal(subData.computos);
+  if (calc !== null) return calc;
+  if (subData.finalGrade !== null && subData.finalGrade !== undefined && subData.finalGrade !== '')
+    return parseFloat(subData.finalGrade);
+  return null;
+}
+function getEffectiveStatus(subData) {
+  const calc = calcFinal(subData.computos);
+  if (calc !== null) return getStatus(calc, subData.computos);
+  // Sin cómputos: usar el status guardado en Sheets
+  if (subData.status && subData.status !== 'pending') return subData.status;
+  return getStatus(null, subData.computos);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PENSUM RENDER
+// ═══════════════════════════════════════════════════════════
+function updateZoom(val){
+  currentZoom=parseInt(val);localStorage.setItem('zoomLevel',val);
+  document.getElementById('zoomLabel').textContent=val+'%';
+  document.getElementById('pensumWrapper').style.zoom=val/100;
+  // Sincronizar zoom también en la vista de notas del ciclo
+  const inner = document.querySelector('.cycle-view-inner');
+  if (inner) inner.style.zoom = val/100;
+}
+
+function toggleEditMode(){
+  editModeActive=!editModeActive;
+  const btn=document.getElementById('editModeBtn');
+  btn.classList.toggle('active',editModeActive);
+  btn.textContent=editModeActive?'✅ Edición ON':'✏️ Editar Pénsum';
+  renderPensum();
+  showToast(editModeActive?'Modo edición: arrastra materias entre ciclos. Ctrl+2×clic=6.0, Ctrl+Shift+clic=especial':'Modo edición desactivado','success');
+}
+
+let ctrlClickCounts={};
+let ctrlClickTimers={};
+
+function renderPensum(){
+  const wrapper=document.getElementById('pensumWrapper');
+  wrapper.innerHTML='';
+  const sd=getStudentData();
+
+  const yearRow=document.createElement('div');
+  yearRow.className='year-row';
+  ['I AÑO','','II AÑO','','III AÑO','','IV AÑO','','V AÑO',''].forEach((y,i)=>{
+    const d=document.createElement('div');
+    d.className='year-label';
+    d.textContent=y;
+    yearRow.appendChild(d);
+  });
+
+  const grid=document.createElement('div');
+  grid.className='pensum-grid';
+
+  CYCLES.forEach(cycle=>{
+    const col=document.createElement('div');
+    col.className='cycle-col';
+    col.dataset.cycleId=cycle.id;
+
+    const isDone=!!(sd.cyclesDone&&sd.cyclesDone[cycle.id]);
+    const lbl=document.createElement('div');
+    lbl.className='cycle-header-box'+(isDone?' done-cycle':'');
+    lbl.innerHTML=(isDone?'✅ ':'')+cycle.name.toUpperCase();
+    lbl.onclick=()=>openCycle(cycle.id);
+    col.appendChild(lbl);
+
+    cycle.subjects.forEach(sub=>{
+      const subData=getSubjectData(sub.num);
+      const grade=getEffectiveGrade(subData);
+      const status=getEffectiveStatus(subData);
+      const isSpecial=!!(sd.specialCards&&sd.specialCards[sub.num]);
+      const progress=grade!==null?Math.round((grade/10)*100):0;
+
+      const card=document.createElement('div');
+      card.className='subject-card'+(isSpecial?' status-special':'')+(grade===null&&status==='pending'&&!isSpecial?' no-grade':'');
+      card.dataset.num=sub.num;
+      card.dataset.cycleId=cycle.id;
+      if(grade!==null&&!isSpecial) card.style.background=`linear-gradient(to right,rgba(16,185,129,.42) ${progress}%,rgba(239,68,68,.35) ${progress}%)`;
+      else if(status==='pass'&&!isSpecial) card.style.background=`linear-gradient(to right,rgba(16,185,129,.42) 60%,rgba(239,68,68,.35) 60%)`;
+      else if(status==='fail'&&!isSpecial) card.style.background=`linear-gradient(to right,rgba(16,185,129,.42) 40%,rgba(239,68,68,.35) 40%)`;
+      else if(status==='inprogress'&&!isSpecial) card.style.background='rgba(251,191,36,.25)';
+
+      // CTRL+2CLICS = poner/quitar 6.0
+      // CTRL+SHIFT+CLIC = marcar especial (amarillo)
+      card.addEventListener('click',e=>{
+        if(e.ctrlKey && e.shiftKey){
+          toggleSpecialCard(sub.num); return;
+        }
+        if(e.ctrlKey){
+          const k=sub.num;
+          ctrlClickCounts[k]=(ctrlClickCounts[k]||0)+1;
+          clearTimeout(ctrlClickTimers[k]);
+          ctrlClickTimers[k]=setTimeout(()=>{ctrlClickCounts[k]=0;},500);
+          if(ctrlClickCounts[k]>=2){
+            ctrlClickCounts[k]=0;
+            fillWithSix(sub.num);
+          }
+          return;
+        }
+        openCycle(cycle.id,sub.num);
+      });
+
+      // Drag in edit mode
+      if(editModeActive){
+        card.draggable=true;
+        card.addEventListener('dragstart',e=>{
+          e.dataTransfer.setData('num',sub.num);
+          e.dataTransfer.setData('fromCycle',''+cycle.id);
+          card.classList.add('dragging-card');
+        });
+        card.addEventListener('dragend',()=>card.classList.remove('dragging-card'));
+        card.addEventListener('dragover',e=>{e.preventDefault();card.classList.add('drag-over-card');});
+        card.addEventListener('dragleave',()=>card.classList.remove('drag-over-card'));
+        card.addEventListener('drop',e=>{
+          e.preventDefault();
+          card.classList.remove('drag-over-card');
+          const fromNum=e.dataTransfer.getData('num');
+          const fromCid=parseInt(e.dataTransfer.getData('fromCycle'));
+          const toCid=cycle.id;
+          if(fromNum===sub.num) return;
+          swapSubjects(fromNum,fromCid,sub.num,toCid);
+        });
+      }
+
+      const gradeDisp=grade!==null?`<span class="card-grade-inline grade-${isSpecial?'prog':status}">${Math.floor(grade*10)/10}</span>`:'';
+      card.innerHTML=`
+        <div class="card-status-left status-${isSpecial?'special':status}"></div>
+        <div class="card-top-bar">
+          <div style="display:flex;gap:6px;align-items:center;"><span>${sub.num}</span><span style="opacity:.8;font-weight:500;">${sub.code}</span></div>
+          ${gradeDisp}
+        </div>
+        <div class="card-body">
+          <div class="card-name">${escapeHtml(sub.name)}</div>
+          <div class="card-extra">${isSpecial?'⭐ Especial':'Ciclo Extraordinario'}</div>
+        </div>
+        <div class="card-bottom">
+          <span>${sub.prereq}</span>
+          ${progress>0&&!isSpecial?`<span style="color:var(--fail);font-weight:700;font-size:9px;">${progress}%</span>`:'<span></span>'}
+          <span>${sub.uv} UV</span>
+        </div>`;
+      col.appendChild(card);
+    });
+
+    // Column drop zone
+    if(editModeActive){
+      col.addEventListener('dragover',e=>{e.preventDefault();col.style.outline='2px dashed var(--blue)';});
+      col.addEventListener('dragleave',()=>col.style.outline='');
+      col.addEventListener('drop',e=>{
+        e.preventDefault(); col.style.outline='';
+        const fromNum=e.dataTransfer.getData('num');
+        const fromCid=parseInt(e.dataTransfer.getData('fromCycle'));
+        if(fromCid===cycle.id) return;
+        moveSubjectToCycle(fromNum,fromCid,cycle.id);
+      });
+    }
+
+    grid.appendChild(col);
+  });
+
+  wrapper.appendChild(yearRow);
+  wrapper.appendChild(grid);
+  document.getElementById('pensumWrapper').style.zoom=currentZoom/100;
+  updateStats();
+}
+
+function fillWithSix(num){
+  const sd=getSubjectData(num);
+  const allSix=sd.computos.every(c=>parseFloat(c.lab1)===6&&parseFloat(c.lab2)===6&&parseFloat(c.parcial)===6);
+  for(let i=0;i<3;i++){sd.computos[i]={lab1:allSix?'':6,lab2:allSix?'':6,parcial:allSix?'':6};}
+  saveLocal();renderPensum();
+  showToast(allSix?'Notas limpiadas':'✓ Materia rellenada con 6.0','success');
+}
+
+function toggleSpecialCard(num){
+  const sd=getStudentData();
+  if(!sd.specialCards) sd.specialCards={};
+  sd.specialCards[num]=!sd.specialCards[num];
+  saveLocal();renderPensum();
+  showToast(sd.specialCards[num]?'⭐ Marcada como especial (amarillo)':'Especial removido','success');
+}
+
+function swapSubjects(numA, cidA, numB, cidB){
+  // Intercambiar dos materias (dentro del mismo ciclo o entre ciclos)
+  const cycA=CYCLES.find(c=>c.id===cidA);
+  const cycB=CYCLES.find(c=>c.id===cidB);
+  if(!cycA||!cycB) return;
+  const iA=cycA.subjects.findIndex(s=>s.num===numA);
+  const iB=cycB.subjects.findIndex(s=>s.num===numB);
+  if(iA<0||iB<0) return;
+  snapshotCycles(`Intercambiar ${numA}↔${numB}`);
+  const tmp=cycA.subjects[iA];
+  cycA.subjects[iA]=cycB.subjects[iB];
+  cycB.subjects[iB]=tmp;
+  saveLocal();renderPensum();
+  showToast('↔ Materias intercambiadas','success');
+}
+
+function moveSubjectToCycle(num, fromCid, toCid){
+  const fromC=CYCLES.find(c=>c.id===fromCid);
+  const toC=CYCLES.find(c=>c.id===toCid);
+  if(!fromC||!toC) return;
+  const idx=fromC.subjects.findIndex(s=>s.num===num);
+  if(idx<0) return;
+  snapshotCycles(`Mover ${num} de ${fromC.name} → ${toC.name}`);
+  const [sub]=fromC.subjects.splice(idx,1);
+  toC.subjects.push(sub);
+  saveLocal();renderPensum();
+  showToast('↗ Materia movida a '+toC.name,'success');
+}
+
+function updateStats(){
+  let pass=0,fail=0,prog=0,pend=0,total=0;
+  CYCLES.forEach(c=>c.subjects.forEach(sub=>{
+    total++;
+    const sd=getSubjectData(sub.num);
+    const s=getEffectiveStatus(sd);
+    if(s==='pass')pass++;else if(s==='fail')fail++;else if(s==='inprogress')prog++;else pend++;
+  }));
+  document.getElementById('statPass').textContent=pass;
+  document.getElementById('statFail').textContent=fail;
+  document.getElementById('statProgress').textContent=prog;
+  document.getElementById('statPending').textContent=pend;
+  const pct=Math.round((pass/total)*100);
+  document.getElementById('statPct').textContent=pct+'%';
+  document.getElementById('totalProgressBar').style.width=pct+'%';
+}
+
+// ═══════════════════════════════════════════════════════════
+// HISTORIAL DE CAMBIOS DEL PÉNSUM
+// ═══════════════════════════════════════════════════════════
+function openHistPensum(){
+  renderHistPensum();
+  document.getElementById('histPensumModal').classList.add('open');
+}
+
+function setHistFilter(f,btn){
+  histFilter=f;
+  document.querySelectorAll('#histFilterTabs .filter-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistPensum();
+}
+
+function renderHistPensum(){
+  const list=document.getElementById('histPensumList');
+  const all=[...undoStack].reverse(); // más reciente primero
+  const filtered=filterByPeriod(all,'ts',histFilter);
+  if(!filtered.length){list.innerHTML='<div style="color:var(--gm);text-align:center;padding:18px;">No hay cambios registrados aún.</div>';return;}
+  list.innerHTML=filtered.map((e,i)=>`
+    <div class="hist-row undo-able" style="cursor:pointer;" onclick="restoreSnapshot(${undoStack.length-1-i})" title="Clic para restaurar este estado">
+      <div style="font-size:18px;flex-shrink:0;">📋</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:13px;color:var(--text);">${escapeHtml(e.desc)}</div>
+        <div style="font-size:11px;color:var(--gm);">${new Date(e.ts).toLocaleString('es-SV')}</div>
+      </div>
+      <div style="font-size:11px;color:var(--blue);font-weight:700;">Restaurar</div>
+    </div>`).join('');
+}
+
+function restoreSnapshot(idx){
+  if(!confirm('¿Restaurar el pénsum a este estado? Se guardará el estado actual en el historial.')) return;
+  snapshotCycles('Antes de restaurar');
+  CYCLES=JSON.parse(JSON.stringify(undoStack[idx].snapshot));
+  saveLocal();renderPensum();
+  document.getElementById('histPensumModal').classList.remove('open');
+  showToast('✅ Estado del pénsum restaurado','success');
+}
+
+// ═══════════════════════════════════════════════════════════
+// CYCLE DETAIL
+// ═══════════════════════════════════════════════════════════
+function toggleCycleDone(){
+  if(!currentCycleId||!currentStudent) return;
+  const sd=getStudentData();
+  if(!sd.cyclesDone) sd.cyclesDone={};
+  const wasDone = !!sd.cyclesDone[currentCycleId];
+  if(wasDone){
+    if(!confirm('¿Desmarcar este ciclo como finalizado?\nEl ciclo volverá a estado normal.')) return;
+    // Eliminar la clave completamente para que se detecte el cambio
+    delete sd.cyclesDone[currentCycleId];
+    saveLocal(); updateCycleDoneBtn(); renderPensum();
+    showToast('↩ Ciclo desmarcado — ya no figura como finalizado','success');
+  } else {
+    sd.cyclesDone[currentCycleId] = true;
+    saveLocal(); updateCycleDoneBtn(); renderPensum();
+    showToast('✅ Ciclo marcado como finalizado','success');
+  }
+}
+function updateCycleDoneBtn(){
+  const sd=getStudentData();
+  const done=!!(sd.cyclesDone&&sd.cyclesDone[currentCycleId]);
+  const btn=document.getElementById('cycleDoneBtn');
+  if(!btn) return;
+  btn.classList.toggle('done',done);
+  document.getElementById('cycleDoneIcon').textContent=done?'✅':'☐';
+  document.getElementById('cycleDoneText').textContent=done?'✓ Finalizado — clic para deshacer':'Marcar finalizado';
+  if(btn) btn.title=done?'Clic para desmarcar este ciclo':'Marcar este ciclo como finalizado';
+}
+
+function openCycle(id,highlightNum=null){
+  currentCycleId=id;
+  const cycle=CYCLES.find(c=>c.id===id);
+  const sd=getStudentData();
+  const isDone=!!(sd.cyclesDone&&sd.cyclesDone[id]);
+  const allPass=cycle.subjects.every(s=>getEffectiveStatus(getSubjectData(s.num))==='pass');
+  const started=cycle.subjects.some(s=>getEffectiveStatus(getSubjectData(s.num))!=='pending');
+  let badge='';
+  if(isDone) badge=`<span style="background:var(--pass);color:#fff;padding:3px 9px;border-radius:20px;font-size:11px;margin-left:10px;vertical-align:middle;">✅ Finalizado</span>`;
+  else if(allPass) badge=`<span style="background:var(--pass);color:#fff;padding:3px 9px;border-radius:20px;font-size:11px;margin-left:10px;vertical-align:middle;">100%</span>`;
+  else if(started) badge=`<span style="background:var(--pend);color:#fff;padding:3px 9px;border-radius:20px;font-size:11px;margin-left:10px;vertical-align:middle;">Cursando</span>`;
+  document.getElementById('cycleTitle').innerHTML=`${cycle.name} — ${cycle.year} ${badge}`;
+  document.getElementById('cycleSubtitle').textContent=cycle.subjects.length+' asignaturas · 3 cómputos';
+  document.getElementById('pensumView').classList.remove('active');
+  document.getElementById('cycleView').classList.add('active');
+  // Aplicar el mismo zoom del pénsum a la vista de notas
+  const inner = document.querySelector('.cycle-view-inner');
+  if (inner) { inner.style.zoom = currentZoom / 100; }
+  updateCycleDoneBtn();
+  renderSubjects(cycle,highlightNum);
+}
+
+function showPensum(){
+  document.getElementById('cycleView').classList.remove('active');
+  document.getElementById('pensumView').classList.add('active');
+  renderPensum();
+}
+
+function renderSubjects(cycle,highlightNum=null){
+  const list=document.getElementById('subjectsList');
+  list.innerHTML='';
+  const sd=getStudentData();
+  cycle.subjects.forEach(sub=>{
+    const subData=getSubjectData(sub.num);
+    const isSpecial=!!(sd.specialCards&&sd.specialCards[sub.num]);
+    const row=document.createElement('div');
+    row.className='subject-row'; row.id='srow-'+sub.num;
+    if(highlightNum===sub.num) row.classList.add('open');
+    const grade=getEffectiveGrade(subData);
+    const status=isSpecial?'special':getEffectiveStatus(subData);
+    const chipCls={pass:'chip-pass',fail:'chip-fail',inprogress:'chip-inprogress',pending:'chip-pending',special:'chip-special'}[status];
+    const chipTxt={pass:'Aprobada',fail:'Reprobada',inprogress:'En curso',pending:'Pendiente',special:'Especial ⭐'}[status];
+    const gradeTrunc=grade!==null?Math.floor(grade*10)/10:null;
+    const gradeDisp=gradeTrunc!==null?gradeTrunc:'—';
+    const exact=grade!==null?grade.toFixed(2):'';
+    const gradeClass=status==='pass'?'pass':status==='fail'?'fail':'';
+    row.innerHTML=`
+      <div class="subject-row-header" onclick="toggleSubject('${sub.num}')">
+        <div class="srh-num">${sub.num}</div>
+        <div class="srh-info">
+          <div class="srh-name">${escapeHtml(sub.name)}</div>
+          <div class="srh-meta">Código: ${sub.code} · Prerrequisito: ${sub.prereq} · ${sub.uv} UV</div>
+        </div>
+        <div class="srh-status">
+          <span class="status-chip ${chipCls}">${chipTxt}</span>
+          <div class="final-grade-display ${gradeClass}">
+            ${gradeDisp}${exact&&grade!==gradeTrunc?`<div style="font-size:.5em;color:var(--gm);font-weight:500;">${exact}</div>`:''}
+          </div>
+          <span class="toggle-icon">▾</span>
+        </div>
+      </div>
+      <div class="subject-computos">${buildComputos(sub.num,subData)}</div>`;
+    list.appendChild(row);
+  });
+}
+
+function buildComputos(n,sd){
+  let h='<div class="computos-grid">';
+  for(let i=0;i<3;i++){
+    const c=sd.computos[i];
+    const sc=calcComputo(c);
+    const scD=sc!==null?sc.toFixed(2):'—';
+    h+=`<div class="computo-block">
+      <div class="computo-title">Cómputo ${i+1}<span class="computo-avg" id="cavg-${n}-${i}">${scD}</span></div>
+      <div class="activity-row"><span class="activity-label">Laboratorio N°1</span><span class="activity-pct">30%</span>
+        <input type="number" class="activity-input" step="0.1" min="0" max="10" id="inp-${n}-${i}-lab1" value="${c.lab1}" placeholder="0–10" oninput="updateGrade('${n}',${i},'lab1',this.value)"></div>
+      <div class="activity-row"><span class="activity-label">Laboratorio N°2</span><span class="activity-pct">30%</span>
+        <input type="number" class="activity-input" step="0.1" min="0" max="10" id="inp-${n}-${i}-lab2" value="${c.lab2}" placeholder="0–10" oninput="updateGrade('${n}',${i},'lab2',this.value)"></div>
+      <div class="activity-row"><span class="activity-label">Parcial N°${i+1}</span><span class="activity-pct">40%</span>
+        <input type="number" class="activity-input" step="0.1" min="0" max="10" id="inp-${n}-${i}-parcial" value="${c.parcial}" placeholder="0–10" oninput="updateGrade('${n}',${i},'parcial',this.value)"></div>
+      <div class="computo-score"><span>Cómputo ${i+1}: <strong id="cscore-${n}-${i}">${scD}</strong></span></div>
+      <button onclick="clearComputo('${n}',${i})" style="margin-top:7px;font-size:10px;background:var(--fail);color:#fff;border:none;padding:4px 8px;border-radius:5px;cursor:pointer;width:100%;">Borrar cómputo</button>
+    </div>`;
+  }
+  h+='</div>';
+  const fg=calcFinal(sd.computos);
+  const fgt=fg!==null?Math.floor(fg*10)/10:null;
+  const fgD=fgt!==null?fgt:'—';
+  const fgExact=fg!==null?fg.toFixed(2):'';
+  const fgSt=getStatus(fgt,sd.computos);
+  const fgCls=fgSt==='pass'?'pass':fgSt==='fail'?'fail':'';
+  h+=`<div class="subject-summary">
+    <div class="summary-item"><label>Cómputo 1</label><span id="smsc-${n}-0">${calcComputo(sd.computos[0])!==null?calcComputo(sd.computos[0]).toFixed(2):'—'}</span></div>
+    <div class="summary-item"><label>Cómputo 2</label><span id="smsc-${n}-1">${calcComputo(sd.computos[1])!==null?calcComputo(sd.computos[1]).toFixed(2):'—'}</span></div>
+    <div class="summary-item"><label>Cómputo 3</label><span id="smsc-${n}-2">${calcComputo(sd.computos[2])!==null?calcComputo(sd.computos[2]).toFixed(2):'—'}</span></div>
+    <div class="summary-item" style="border-left:2px solid var(--gl);padding-left:13px;">
+      <label>Nota Final</label>
+      <span class="${fgCls}" id="smfinal-${n}" style="font-size:20px;font-weight:800;">${fgD}${fgExact&&fg!==fgt?`<div style="font-size:.45em;color:var(--gm);">${fgExact}</div>`:''}</span>
+    </div>
+    <div class="btn-group">
+      <button class="save-subject-btn" onclick="saveSubject('${n}')">💾 Guardar</button>
+      <button class="delete-subject-btn" onclick="askDelete('${n}')">🗑 Eliminar</button>
+    </div>
+  </div>`;
+  return h;
+}
+
+function toggleSubject(num){document.getElementById('srow-'+num).classList.toggle('open');}
+
+function updateGrade(num,ci,field,val){
+  const sd=getSubjectData(num);
+  sd.computos[ci][field]=val;
+  const sc=calcComputo(sd.computos[ci]);
+  const scD=sc!==null?sc.toFixed(2):'—';
+  ['cscore','cavg'].forEach(p=>{const el=document.getElementById(`${p}-${num}-${ci}`);if(el)el.textContent=scD;});
+  const sm=document.getElementById(`smsc-${num}-${ci}`);if(sm)sm.textContent=scD;
+  const fg=calcFinal(sd.computos);
+  const fgt=fg!==null?Math.floor(fg*10)/10:null;
+  const fgD=fgt!==null?fgt:'—';
+  const fgExact=fg!==null?fg.toFixed(2):'';
+  const fgSt=getStatus(fgt,sd.computos);
+  const fgCls=fgSt==='pass'?'pass':fgSt==='fail'?'fail':'';
+  const finalEl=document.getElementById(`smfinal-${num}`);
+  if(finalEl){finalEl.className=fgCls;finalEl.style.cssText='font-size:20px;font-weight:800;';finalEl.innerHTML=fgD+(fgExact&&fg!==fgt?`<div style="font-size:.45em;color:var(--gm);">${fgExact}</div>`:'');}
+  const row=document.getElementById('srow-'+num);
+  if(row){
+    const chip=row.querySelector('.status-chip');
+    const gd=row.querySelector('.final-grade-display');
+    const mp={pass:'chip-pass',fail:'chip-fail',inprogress:'chip-inprogress',pending:'chip-pending'};
+    const mt={pass:'Aprobada',fail:'Reprobada',inprogress:'En curso',pending:'Pendiente'};
+    if(chip){chip.className='status-chip '+(mp[fgSt]||'chip-pending');chip.textContent=mt[fgSt]||'Pendiente';}
+    if(gd){gd.className='final-grade-display '+fgCls;gd.textContent=fgD;}
+  }
+  saveLocal();updateStats();
+}
+
+function saveSubject(num){saveLocal();showToast('✓ Guardado','success');updateStats();}
+
+function askDelete(num){
+  const sub=findSubject(num);
+  document.getElementById('deleteModalText').textContent=`¿Eliminar notas de "${sub?sub.name:num}"?`;
+  pendingDeleteAction=()=>{const sd=getSubjectData(num);sd.computos=[{lab1:'',lab2:'',parcial:''},{lab1:'',lab2:'',parcial:''},{lab1:'',lab2:'',parcial:''}];sd.status='pending';sd.finalGrade=null;saveLocal();showToast('Eliminado','success');if(currentCycleId)renderSubjects(CYCLES.find(c=>c.id===currentCycleId),num);updateStats();};
+  document.getElementById('deleteModal').classList.add('open');
+}
+function clearComputo(num,ci){
+  const sub=findSubject(num);
+  document.getElementById('deleteModalText').textContent=`¿Borrar Cómputo ${ci+1} de "${sub?sub.name:num}"?`;
+  pendingDeleteAction=()=>{const sd=getSubjectData(num);sd.computos[ci]={lab1:'',lab2:'',parcial:''};const g=calcFinal(sd.computos);sd.status=getStatus(g,sd.computos);sd.finalGrade=g;saveLocal();showToast('Cómputo borrado','success');if(currentCycleId)renderSubjects(CYCLES.find(c=>c.id===currentCycleId),num);updateStats();};
+  document.getElementById('deleteModal').classList.add('open');
+}
+function clearCurrentCycle(){
+  if(!currentCycleId) return;
+  const cycle=CYCLES.find(c=>c.id===currentCycleId);
+  document.getElementById('deleteModalText').textContent=`¿Eliminar todas las notas de ${cycle.name}?`;
+  pendingDeleteAction=()=>{cycle.subjects.forEach(sub=>{const sd=getSubjectData(sub.num);sd.computos=[{lab1:'',lab2:'',parcial:''},{lab1:'',lab2:'',parcial:''},{lab1:'',lab2:'',parcial:''}];sd.status='pending';sd.finalGrade=null;});saveLocal();showToast('Ciclo limpiado','success');renderSubjects(cycle);updateStats();};
+  document.getElementById('deleteModal').classList.add('open');
+}
+function closeDeleteModal(){document.getElementById('deleteModal').classList.remove('open');pendingDeleteAction=null;}
+function confirmDelete(){if(pendingDeleteAction)pendingDeleteAction();closeDeleteModal();}
+function findSubject(num){for(const c of CYCLES)for(const s of c.subjects)if(s.num===num)return s;return null;}
+
+// ═══════════════════════════════════════════════════════════
+// FILTER UTILITY
+// ═══════════════════════════════════════════════════════════
+function filterByPeriod(arr, dateField, period){
+  if(period==='all') return arr;
+  const now=new Date();
+  return arr.filter(item=>{
+    const d=new Date(item[dateField]||'');
+    if(isNaN(d)) return true;
+    if(period==='week'){const w=new Date(now);w.setDate(w.getDate()-7);return d>=w;}
+    if(period==='month'){return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();}
+    if(period==='year'){return d.getFullYear()===now.getFullYear();}
+    return true;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════════════════════════
+function openCalendarModal(){_calendarModalOpen=true;document.getElementById('calendarModal').classList.add('open');renderEvents();}
+function closeCalendarModal(){_calendarModalOpen=false;document.getElementById('calendarModal').classList.remove('open');}
+
+function setCalFilter(f,btn){
+  calFilter=f;
+  document.querySelectorAll('#calFilterTabs .filter-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderEvents();
+}
+
+let currentEventType='';
+function addEvent(type){
+  currentEventType=type;
+  document.getElementById('eventActivityName').textContent=type;
+  const sel=document.getElementById('eventCycle');
+  sel.innerHTML='<option value="">-- Selecciona ciclo --</option>';
+  const sd=getStudentData();
+  CYCLES.forEach(c=>{
+    if(sd.cyclesDone&&sd.cyclesDone[c.id]) return;
+    const opt=document.createElement('option');opt.value=c.id;opt.textContent=c.name;sel.appendChild(opt);
+  });
+  document.getElementById('eventSubject').innerHTML='<option value="">-- Primero elige ciclo --</option>';
+  document.getElementById('eventDate').value='';
+  document.getElementById('eventComment').value='';
+  document.getElementById('addEventModal').classList.add('open');
+}
+function updateEventSubjects(){
+  const cid=parseInt(document.getElementById('eventCycle').value);
+  const sel=document.getElementById('eventSubject');
+  sel.innerHTML='<option value="">-- Selecciona materia --</option>';
+  if(!cid) return;
+  const cycle=CYCLES.find(c=>c.id===cid);
+  if(!cycle) return;
+  cycle.subjects.forEach(sub=>{const o=document.createElement('option');o.value=sub.num;o.textContent=`${sub.code} - ${sub.name}`;sel.appendChild(o);});
+}
+function saveEvent(){
+  const date=document.getElementById('eventDate').value;
+  const comment=document.getElementById('eventComment').value.trim();
+  if(!date){showToast('Selecciona una fecha','error');return;}
+  if(!appData[currentStudent].events) appData[currentStudent].events=[];
+  appData[currentStudent].events.push({id:Date.now(),type:currentEventType,subject:document.getElementById('eventSubject').value,date,comment,done:false,nota:undefined});
+  saveLocal();
+  document.getElementById('addEventModal').classList.remove('open');
+  renderEvents();showToast('Actividad guardada','success');
+}
+function deleteEvent(id){
+  appData[currentStudent].events=(appData[currentStudent].events||[]).filter(e=>e.id!==id);
+  saveLocal();renderEvents();
+}
+function toggleEventDone(id,checked){
+  const ev=(appData[currentStudent].events||[]).find(e=>e.id===id);
+  if(!ev) return; ev.done=checked; saveLocal();renderEvents();
+}
+function setEventNota(id,val){
+  const ev=(appData[currentStudent].events||[]).find(e=>e.id===id);
+  if(!ev) return; ev.nota=val===''?undefined:parseFloat(val); saveLocal();
+}
+function renderEvents(){
+  const list=document.getElementById('eventsList');
+  const evs=appData[currentStudent].events||[];
+  const sorted=[...evs].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const filtered=filterByPeriod(sorted,'date',calFilter);
+  if(!filtered.length){list.innerHTML='<div style="color:var(--gm);text-align:center;padding:20px;">No hay actividades '+(calFilter!=='all'?'en este período.':'anotadas.')+' </div>';return;}
+  const today=new Date().toISOString().slice(0,10);
+  list.innerHTML=filtered.map(ev=>{
+    let sname='';CYCLES.forEach(c=>c.subjects.forEach(s=>{if(s.num===ev.subject)sname=s.name;}));
+    const past=ev.date<today&&!ev.done;
+    return `<div class="cal-event-row${ev.done?' ev-done':''}">
+      <div class="ev-top">
+        <input type="checkbox" class="ev-check" ${ev.done?'checked':''} onchange="toggleEventDone(${ev.id},this.checked)">
+        <span class="ev-type${ev.done?' done-txt':''}">${ev.type}</span>
+        <span class="ev-date" style="color:${past?'var(--fail)':'var(--gm)'};">📅 ${ev.date}</span>
+        <label style="font-size:11px;color:var(--gm);margin-left:auto;display:flex;align-items:center;gap:4px;">Nota:<input type="number" class="ev-nota-inp" min="0" max="10" step="0.01" value="${ev.nota!==undefined?ev.nota:''}" placeholder="—" oninput="setEventNota(${ev.id},this.value)"></label>
+        <button class="ev-del-btn" onclick="deleteEvent(${ev.id})">🗑</button>
+      </div>
+      ${sname?`<div class="ev-sub">${sname}</div>`:''}
+      ${ev.comment?`<div class="ev-sub" style="font-style:italic;">"${ev.comment}"</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// ASISTENCIA
+// ═══════════════════════════════════════════════════════════
+function openAsistencia(){renderAsistencia();document.getElementById('asistenciaModal').classList.add('open');}
+function getTodayKey(){return new Date().toISOString().slice(0,10);}
+function getAsistencias(){if(!appData[currentStudent].asistencias)appData[currentStudent].asistencias={};return appData[currentStudent].asistencias;}
+
+function marcarAsistencia(){
+  const key=getTodayKey();
+  const lista=getAsistencias();
+  if(lista[key]){showToast('Ya marcaste asistencia hoy: '+lista[key].hora,'error');return;}
+  const now=new Date();
+  lista[key]={fecha:key,hora:now.toLocaleTimeString('es-SV',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),ts:now.toISOString()};
+  saveLocal();renderAsistencia();showToast('✅ Asistencia registrada','success');
+}
+
+function setAsistFilter(f,btn){
+  asistFilter=f;
+  document.querySelectorAll('#asistFilterTabs .filter-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderAsistencia();
+}
+
+function renderAsistencia(){
+  const key=getTodayKey();
+  const lista=getAsistencias();
+  const yaHoy=lista[key];
+  const btn=document.getElementById('asistenciaBtn');
+  const hoyDiv=document.getElementById('asistenciaHoy');
+  const hist=document.getElementById('asistenciaHistorico');
+  if(yaHoy){
+    hoyDiv.innerHTML=`<div style="font-size:26px;margin-bottom:5px;">✅</div><div style="font-weight:700;color:var(--pass);font-size:14px;">Asistencia registrada</div><div style="font-size:11px;color:var(--gm);margin-top:3px;">📅 ${yaHoy.fecha} 🕐 ${yaHoy.hora}</div>`;
+    if(btn){btn.disabled=true;btn.textContent='✅ Ya asististe hoy';}
+  } else {
+    hoyDiv.innerHTML=`<div style="font-size:24px;margin-bottom:5px;">⏳</div><div style="font-weight:700;color:var(--pend);font-size:14px;">Sin registro hoy</div><div style="font-size:11px;color:var(--gm);margin-top:3px;">📅 ${key}</div>`;
+    if(btn){btn.disabled=false;btn.textContent='✅ Marcar Asistencia de Hoy';}
+  }
+  const entries=Object.values(lista);
+  const filtered=filterByPeriod(entries,'ts',asistFilter).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  if(!filtered.length){hist.innerHTML='<div style="color:var(--gm);text-align:center;padding:12px;">Sin registros en este período.</div>';return;}
+  hist.innerHTML=filtered.map(a=>{
+    const isToday=a.fecha===key;
+    return `<div class="asist-hist-row${isToday?' today-row':''}">
+      <span style="font-size:17px;">${isToday?'✅':'📌'}</span>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:13px;color:${isToday?'var(--pass)':'var(--text)'};">${a.fecha}${isToday?' <span style="font-size:9px;background:var(--pass);color:#fff;border-radius:999px;padding:1px 5px;margin-left:4px;">HOY</span>':''}</div>
+        <div style="font-size:11px;color:var(--gm);">🕐 ${a.hora}</div>
+      </div>
+      <button onclick="borrarAsistencia('${a.fecha}')" style="background:transparent;border:none;color:var(--fail);cursor:pointer;font-size:13px;">🗑</button>
+    </div>`;
+  }).join('');
+}
+function borrarAsistencia(fecha){
+  if(!confirm('¿Eliminar este registro?')) return;
+  delete getAsistencias()[fecha];saveLocal();renderAsistencia();
+}
+
+// ═══════════════════════════════════════════════════════════
+// PASTE FROM PORTAL
+// ═══════════════════════════════════════════════════════════
+function openPasteModal(){document.getElementById('pasteModal').classList.add('open');document.getElementById('pasteTextarea').value='';}
+function closePasteModal(){document.getElementById('pasteModal').classList.remove('open');}
+function processPaste(){
+  const text=document.getElementById('pasteTextarea').value.trim();
+  if(!text){showToast('Pega una tabla primero','error');return;}
+  const lines=text.split(/\r?\n/);
+  const valid=[];
+  for(const line of lines){
+    if(!line.trim()) continue;
+    const tokens=line.trim().split(/\s+/);
+    const nums=[];
+    for(let i=tokens.length-1;i>=0;i--){const t=tokens[i].replace(',','.');if(!isNaN(parseFloat(t))&&isFinite(t))nums.unshift(parseFloat(t));else break;}
+    if(nums.length>=12) valid.push({line,nums:nums.length>14?nums.slice(-14):nums});
+  }
+  let cycle=null;
+  if(currentCycleId) cycle=CYCLES.find(c=>c.id===currentCycleId);
+  const subSorted=cycle?[...cycle.subjects].sort((a,b)=>a.code.localeCompare(b.code)):[];
+  let imported=0;
+  valid.forEach((vl,i)=>{
+    const m=vl.line.match(/^(\d{2,4})\s*-\s*/);
+    const code=m?m[1]:null;
+    let sub=null;
+    if(code){for(const c of CYCLES)for(const s of c.subjects)if(s.code===code){sub=s;break;}}
+    else if(cycle&&i<subSorted.length) sub=subSorted[i];
+    if(!sub) return;
+    const n=vl.nums;
+    const sd=getSubjectData(sub.num);
+    sd.computos[0]={lab1:n[0],lab2:n[1],parcial:n[2]};
+    sd.computos[1]={lab1:n[4],lab2:n[5],parcial:n[6]};
+    sd.computos[2]={lab1:n[8],lab2:n[9],parcial:n[10]};
+    imported++;
+  });
+  if(!imported) showToast('No se encontraron materias válidas','error');
+  else{saveLocal();closePasteModal();showToast(`✓ ${imported} materias importadas`,'success');if(currentCycleId)renderSubjects(CYCLES.find(c=>c.id===currentCycleId));else renderPensum();}
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════════
+function exportJSON(){if(!currentStudent){showToast('Selecciona un estudiante primero','error');return;}const a=document.createElement('a');a.href='data:text/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({student:currentStudent,data:appData[currentStudent]||{}}));a.download='pensum_'+currentStudent.replace(/\s+/g,'_')+'_backup.json';a.click();showToast('✓ Backup descargado','success');}
+function importJSON(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='application/json';
+  inp.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{appData=JSON.parse(ev.target.result);saveLocal();showToast('Importado','success');renderPensum();}catch(err){showToast('Error al importar','error');}};r.readAsText(f);};inp.click();
+}
+function exportCSV(){
+  const rows=[['Ciclo','#','Código','Materia','UV','Prerreq','L1-C1','L2-C1','P-C1','C1','L1-C2','L2-C2','P-C2','C2','L1-C3','L2-C3','P-C3','C3','Nota Final','Estado']];
+  CYCLES.forEach(cy=>cy.subjects.forEach(sub=>{
+    const sd=getSubjectData(sub.num);
+    const c1=calcComputo(sd.computos[0]),c2=calcComputo(sd.computos[1]),c3=calcComputo(sd.computos[2]);
+    const fg=calcFinal(sd.computos);
+    rows.push([cy.name,sub.num,sub.code,sub.name,sub.uv,sub.prereq,sd.computos[0].lab1,sd.computos[0].lab2,sd.computos[0].parcial,c1!==null?c1.toFixed(2):'',sd.computos[1].lab1,sd.computos[1].lab2,sd.computos[1].parcial,c2!==null?c2.toFixed(2):'',sd.computos[2].lab1,sd.computos[2].lab2,sd.computos[2].parcial,c3!==null?c3.toFixed(2):'',fg!==null?fg.toFixed(2):'',sd.status]);
+  }));
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='notas_ugb_'+new Date().toISOString().slice(0,10)+'.csv';a.click();showToast('✓ CSV exportado','success');
+}
+function importCSV(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.csv';
+  inp.onchange=e=>{
+    const f=e.target.files[0];if(!f) return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      const lines=ev.target.result.split('\n').slice(1);let imported=0;
+      lines.forEach(line=>{
+        const cols=line.split(',').map(c=>c.replace(/^"|"$/g,'').trim());
+        if(cols.length<19) return;
+        const num=cols[1];if(!num) return;
+        const sd=getSubjectData(num);
+        const toF=v=>{const p=parseFloat(v);return isNaN(p)?'':p;};
+        sd.computos[0]={lab1:toF(cols[6]),lab2:toF(cols[7]),parcial:toF(cols[8])};
+        sd.computos[1]={lab1:toF(cols[10]),lab2:toF(cols[11]),parcial:toF(cols[12])};
+        sd.computos[2]={lab1:toF(cols[14]),lab2:toF(cols[15]),parcial:toF(cols[16])};
+        imported++;
+      });
+      if(imported){saveLocal();renderPensum();showToast(`✓ ${imported} materias importadas`,'success');}
+      else showToast('No se importaron materias','error');
+    };r.readAsText(f,'UTF-8');
+  };inp.click();
+}
+
+// ═══════════════════════════════════════════════════════════
+// PDF
+// ═══════════════════════════════════════════════════════════
+function exportPDF(){
+  const pt=document.title;document.title='Pensum_UNIVO_'+(currentStudent||'Estudiante');
+  const sMap={pass:'Aprobada',fail:'Reprobada',inprogress:'En curso',pending:'Pendiente'};
+  const bMap={pass:'#d1fae5',fail:'#fee2e2',inprogress:'#fef3c7',pending:'#f9fafb'};
+  let html=`<div style="text-align:center;margin-bottom:14px;"><img src="univo.png" style="height:38px;object-fit:contain;" onerror="this.style.display='none'"><h2 style="color:#1e3a5f;margin:7px 0 2px;font-size:15px;font-family:sans-serif;">Pénsum — Ingeniería Civil</h2><p style="color:#6b7280;font-size:11px;font-family:sans-serif;">Estudiante: <strong>${currentStudent||'?'}</strong> · ${new Date().toLocaleDateString('es-SV')}</p></div>`;
+  html+=`<table style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:10px;"><thead><tr style="background:#1e3a5f;color:white;"><th style="padding:4px 6px;text-align:left;">#</th><th style="padding:4px 6px;">Cód</th><th style="padding:4px 6px;text-align:left;">Materia</th><th style="padding:4px 6px;">Ciclo</th><th style="padding:4px 6px;">C1</th><th style="padding:4px 6px;">C2</th><th style="padding:4px 6px;">C3</th><th style="padding:4px 6px;">Nota</th><th style="padding:4px 6px;">Estado</th></tr></thead><tbody>`;
+  let ri=0;
+  CYCLES.forEach(cy=>cy.subjects.forEach(sub=>{
+    const sd=getSubjectData(sub.num);
+    const c1=calcComputo(sd.computos[0]),c2=calcComputo(sd.computos[1]),c3=calcComputo(sd.computos[2]);
+    const fg=calcFinal(sd.computos);const st=getStatus(fg,sd.computos);
+    const bg=ri%2===0?(bMap[st]||'#f9fafb'):'#fff';ri++;
+    html+=`<tr style="background:${bg};"><td style="padding:3px 6px;border-bottom:1px solid #e5e7eb;">${sub.num}</td><td style="padding:3px 6px;border-bottom:1px solid #e5e7eb;text-align:center;">${sub.code}</td><td style="padding:3px 6px;border-bottom:1px solid #e5e7eb;">${sub.name}</td><td style="padding:3px 6px;border-bottom:1px solid #e5e7eb;text-align:center;">${cy.name}</td><td style="padding:3px 6px;border-bottom:1px solid #e5e7eb;text-align:center;">${c1!==null?c1.toFixed(2):'—'}</td><td style="padding:3px 6px;border-bottom:1px solid #e5e7eb;text-align:center;">${c2!==null?c2.toFixed(2):'—'}</td><td style="padding:3px 6px;border-bottom:1px solid #e5e7eb;text-align:center;">${c3!==null?c3.toFixed(2):'—'}</td><td style="padding:3px 6px;border-bottom:1px solid #e5e7eb;text-align:center;font-weight:700;">${fg!==null?(Math.floor(fg*10)/10):'—'}</td><td style="padding:3px 6px;border-bottom:1px solid #e5e7eb;text-align:center;">${sMap[st]||'—'}</td></tr>`;
+  }));
+  html+='</tbody></table>';
+  document.getElementById('printArea').innerHTML=html;
+  document.body.classList.add('printing');
+  setTimeout(()=>{window.print();setTimeout(()=>{document.body.classList.remove('printing');document.title=pt;},600);},280);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SHEETS SYNC
+// ═══════════════════════════════════════════════════════════
+async function syncToSheets(isAuto=false){
+  if(!config.appsScriptUrl){if(!isAuto){openConfig();showToast('Configura Sheets primero','error');}return;}
+  if(!isAuto) showToast('⏳ Sincronizando...','success');
+  else{const st=document.getElementById('syncStatus');if(st)st.textContent='⏳ Subiendo...';}
+  const sd=getStudentData();
+  const payload={student:currentStudent,timestamp:new Date().toISOString(),data:[],events:sd.events||[],cyclesDone:sd.cyclesDone||{},asistencias:sd.asistencias||{},specialCards:sd.specialCards||{},cyclesOrder:CYCLES.map(c=>({id:c.id,subjects:c.subjects.map(s=>s.num)}))};
+  CYCLES.forEach(cy=>cy.subjects.forEach(sub=>{
+    const s=getSubjectData(sub.num);
+    const fg=getEffectiveGrade(s);
+    const effStatus=getEffectiveStatus(s);
+    payload.data.push({num:sub.num,code:sub.code,name:sub.name,cycle:cy.name,year:cy.year,uv:sub.uv,computo1:calcComputo(s.computos[0]),computo2:calcComputo(s.computos[1]),computo3:calcComputo(s.computos[2]),lab1_c1:s.computos[0].lab1,lab2_c1:s.computos[0].lab2,parcial_c1:s.computos[0].parcial,lab1_c2:s.computos[1].lab1,lab2_c2:s.computos[1].lab2,parcial_c2:s.computos[1].parcial,lab1_c3:s.computos[2].lab1,lab2_c3:s.computos[2].lab2,parcial_c3:s.computos[2].parcial,finalGrade:fg!==null?fg.toFixed(2):'',status:effStatus});
+  }));
+  try{
+    // Intentar POST directo con CORS primero, luego no-cors
+    let posted = false;
+    try {
+      const r = await Promise.race([
+        fetch(config.appsScriptUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(payload)
+        }),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000))
+      ]);
+      posted = r.ok || r.status === 0 || r.type === 'opaque';
+    } catch(_) {
+      // Fallback: no-cors (siempre "funciona" aunque no podemos leer respuesta)
+      await fetch(config.appsScriptUrl, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      });
+      posted = true;
+    }
+    const t=new Date().toLocaleTimeString();
+    document.getElementById('syncStatus').textContent='sync '+t;
+    if(!isAuto) showToast('✓ Subido a Sheets','success');
+  }catch(e){
+    document.getElementById('syncStatus').textContent='✗ Error subida';
+    if(!isAuto) showToast('✗ Error al subir','error');
+  }
+}
+async function fetchFromSheets(silent=false){
+  if(!config.appsScriptUrl){if(!silent)showToast('Configura Sheets primero','error');return;}
+  if(!currentStudent){if(!silent)showToast('No hay estudiante seleccionado','error');return;}
+  if(!silent) showToast('⏳ Descargando desde Sheets...','success');
+  try{
+    const json=await _jsonpFetch(config.appsScriptUrl+'?student='+encodeURIComponent(currentStudent), 9000);
+    if(json.status==='success'){
+      const d=json.payload;
+      if(!appData[currentStudent]) appData[currentStudent]={notas:{},events:[],cyclesDone:{},asistencias:{},specialCards:{},undoStack:[]};
+      // Reemplazar completamente con datos de Sheets (Sheets = fuente de verdad)
+      appData[currentStudent].notas={};
+      (d.data||[]).forEach(row=>{appData[currentStudent].notas[row.num]={status:row.status,finalGrade:row.finalGrade===''?null:parseFloat(row.finalGrade),computos:[{lab1:row.lab1_c1,lab2:row.lab2_c1,parcial:row.parcial_c1},{lab1:row.lab1_c2,lab2:row.lab2_c2,parcial:row.parcial_c2},{lab1:row.lab1_c3,lab2:row.lab2_c3,parcial:row.parcial_c3}]};});
+      if(d.events && d.events.length) appData[currentStudent].events=d.events;
+      if(d.cyclesDone) appData[currentStudent].cyclesDone=Object.assign(appData[currentStudent].cyclesDone||{},d.cyclesDone);
+      if(d.asistencias) appData[currentStudent].asistencias=Object.assign(appData[currentStudent].asistencias||{},d.asistencias);
+      renderPensum();
+      if(!silent) showToast('✓ Datos actualizados desde Sheets','success');
+      else { const st=document.getElementById('syncStatus'); if(st) st.textContent='✓ '+new Date().toLocaleTimeString(); }
+    } else if(!silent) showToast('✗ '+(json.message||'Error'),'error');
+  }catch(e){if(!silent) showToast('✗ Sin conexión a Sheets','error');}
+}
+function openConfig(){document.getElementById('appsScriptUrl').value=config.appsScriptUrl||'';document.getElementById('configModal').classList.add('open');}
+function closeConfig(){document.getElementById('configModal').classList.remove('open');}
+function saveConfig(){
+  config.appsScriptUrl=document.getElementById('appsScriptUrl').value.trim();
+  localStorage.setItem('ugb_pensum_config',JSON.stringify(config));
+  closeConfig();
+  if(config.appsScriptUrl) document.getElementById('syncStatus').textContent='✓ Sheets configurado';
+  showToast('✓ Configuración guardada','success');
+}
+
+// ═══════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════
+let toastT;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+(type||'');
+  clearTimeout(toastT);toastT=setTimeout(()=>{t.className='toast';},3200);
+}
+
+// ═══════════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  // Ctrl+Z = deshacer, Ctrl+Y o Ctrl+Shift+Z = rehacer
+  if(e.ctrlKey && !e.shiftKey && e.key==='z'){ e.preventDefault(); undoPensum(); return; }
+  if(e.ctrlKey && (e.key==='y' || (e.shiftKey && e.key==='Z'))){ e.preventDefault(); redoPensum(); return; }
+  if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open,.ham-menu.open').forEach(el=>el.classList.remove('open'));
+  // Navegación con Ctrl+Arrow en inputs de notas
+  if(e.ctrlKey&&e.key.startsWith('Arrow')){
+    const active=document.activeElement;
+    if(active&&active.classList.contains('activity-input')){
+      e.preventDefault();
+      const inputs=Array.from(document.querySelectorAll('.activity-input'));
+      const idx=inputs.indexOf(active);if(idx<0)return;
+      const R=idx%3,C=Math.floor((idx%9)/3);
+      let ni=idx;
+      if(e.key==='ArrowDown') ni=R<2?idx+1:idx+7;
+      else if(e.key==='ArrowUp') ni=R>0?idx-1:idx-7;
+      else if(e.key==='ArrowRight'&&C<2) ni=idx+3;
+      else if(e.key==='ArrowLeft'&&C>0) ni=idx-3;
+      if(ni>=0&&ni<inputs.length){inputs[ni].focus();inputs[ni].select();}
+    }
+  }
+});
+
+init();
+</script>
+</body>
+</html>
