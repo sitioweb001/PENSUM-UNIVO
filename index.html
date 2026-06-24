@@ -73,12 +73,13 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
 
 /* ── INDICADOR DE SINCRONIZACIÓN (esquina, siempre visible) ── */
 #syncQueueBadge{
-  position:fixed; left:16px; bottom:16px; z-index:5000;
+  position:fixed; left:50%; bottom:70px; transform:translateX(-50%); z-index:5000;
   display:none; align-items:center; gap:10px;
   background:var(--card); border:1.5px solid var(--gl); border-radius:14px;
   padding:10px 16px; box-shadow:0 8px 24px rgba(0,0,0,.18);
   font-size:13px; font-weight:700; color:var(--text);
   transition:all .25s ease;
+  max-width:calc(100vw - 32px); white-space:nowrap;
 }
 #syncQueueBadge.show{display:flex;}
 #syncQueueBadge .sq-spinner{
@@ -95,6 +96,22 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
 #syncQueueBadge .sq-count{
   font-size:10px;font-weight:800;background:var(--blue);color:#fff;
   border-radius:999px;padding:1px 7px;margin-left:2px;
+}
+@media (max-width:480px){
+  #syncQueueBadge{font-size:11px;padding:8px 12px;bottom:64px;}
+}
+/* ── DESTELLO VERDE AL GUARDAR (pantalla completa, sutil) ── */
+#syncFlash{
+  position:fixed; inset:0; z-index:4999; pointer-events:none;
+  background:rgba(16,185,129,.16); opacity:0;
+}
+#syncFlash.flash{
+  animation:syncFlashAnim .9s ease-out;
+}
+@keyframes syncFlashAnim{
+  0%{opacity:0;}
+  15%{opacity:1;}
+  100%{opacity:0;}
 }
 .ham-wrap{position:relative;}
 .ham-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
@@ -391,6 +408,7 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
         <div class="ham-item" onclick="limpiarCache();closeHam()" style="color:#7c3aed;font-weight:700;">🧹 Limpiar caché y recargar</div>
         <div class="ham-divider"></div>
         <div class="ham-item danger" onclick="changeStudent();closeHam()">🚪 Cambiar estudiante</div>
+        <div class="ham-item danger" onclick="cerrarSesion();closeHam()" style="font-weight:800;">🔒 Cerrar sesión</div>
       </div>
     </div>
   </div>
@@ -573,6 +591,7 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
   <span id="sqText">Guardando...</span>
   <span class="sq-count" id="sqCount" style="display:none;"></span>
 </div>
+<div id="syncFlash"></div>
 <div id="printArea"></div>
 
 <script>
@@ -1586,6 +1605,21 @@ function changeStudent() {
   renderStudentList();
 }
 
+// Cierra sesión por completo: limpia el estudiante actual y vuelve al login
+function cerrarSesion(){
+  if(!confirm('¿Cerrar sesión?')) return;
+  currentStudent=null;
+  localStorage.removeItem('ugb_last_student');
+  stopAutoSyncInterval();
+  document.getElementById('appView').style.display='none';
+  document.getElementById('bottomBar').style.display='none';
+  document.getElementById('loginView').style.display='flex';
+  document.getElementById('loginName').value='';
+  const _pEl=document.getElementById('loginPass'); if(_pEl)_pEl.value='';
+  renderStudentList();
+  showToast('✓ Sesión cerrada','success');
+}
+
 async function deleteStudent(name) {
   const pw = prompt('Contraseña para eliminar:');
   if (pw !== '747') { showToast('Contraseña incorrecta', 'error'); return; }
@@ -1667,6 +1701,12 @@ function _updateSyncBadge(state, extra) {
     count.style.display = 'none';
     clearTimeout(_syncBadgeHideTimer);
     _syncBadgeHideTimer = setTimeout(() => { badge.classList.remove('show'); }, 2200);
+    const flash = document.getElementById('syncFlash');
+    if (flash) {
+      flash.classList.remove('flash');
+      void flash.offsetWidth;
+      flash.classList.add('flash');
+    }
   } else if (state === 'err') {
     badge.classList.add('err');
     text.textContent = '⚠️ Error al guardar — reintentando...';
@@ -2054,10 +2094,19 @@ function renderPensum(){
 
 function fillWithSix(num){
   const sd=getSubjectData(num);
-  const allSix=sd.computos.every(c=>parseFloat(c.lab1)===6&&parseFloat(c.lab2)===6&&parseFloat(c.parcial)===6);
-  for(let i=0;i<3;i++){sd.computos[i]={lab1:allSix?'':6,lab2:allSix?'':6,parcial:allSix?'':6};}
+  const effGrade=getEffectiveGrade(sd);
+  const isCurrentlySix = effGrade !== null && Math.abs(effGrade - 6) < 0.01;
+  if(isCurrentlySix){
+    for(let i=0;i<3;i++){sd.computos[i]={lab1:'',lab2:'',parcial:''};}
+    sd.finalGrade=null;
+    sd.status='pending';
+  } else {
+    for(let i=0;i<3;i++){sd.computos[i]={lab1:6,lab2:6,parcial:6};}
+    sd.finalGrade=6;
+    sd.status='pass';
+  }
   saveLocal();renderPensum();
-  showToast(allSix?'Notas limpiadas':'✓ Materia rellenada con 6.0','success');
+  showToast(isCurrentlySix?'Notas limpiadas':'✓ Materia rellenada con 6.0','success');
 }
 
 function toggleSpecialCard(num){
