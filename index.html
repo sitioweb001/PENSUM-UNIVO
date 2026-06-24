@@ -70,6 +70,32 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
 .header-title h2{font-size:17px;font-weight:800;}
 .header-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
 .sync-status{font-size:11px;opacity:.7;color:#fff;}
+
+/* ── INDICADOR DE SINCRONIZACIÓN (esquina, siempre visible) ── */
+#syncQueueBadge{
+  position:fixed; left:16px; bottom:16px; z-index:5000;
+  display:none; align-items:center; gap:10px;
+  background:var(--card); border:1.5px solid var(--gl); border-radius:14px;
+  padding:10px 16px; box-shadow:0 8px 24px rgba(0,0,0,.18);
+  font-size:13px; font-weight:700; color:var(--text);
+  transition:all .25s ease;
+}
+#syncQueueBadge.show{display:flex;}
+#syncQueueBadge .sq-spinner{
+  width:16px;height:16px;border:2.5px solid var(--gl);border-top-color:var(--blue);
+  border-radius:50%;animation:sqSpin .7s linear infinite;flex-shrink:0;
+}
+#syncQueueBadge.ok .sq-spinner{display:none;}
+#syncQueueBadge.ok{border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.08);}
+#syncQueueBadge.err{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.08);}
+#syncQueueBadge .sq-icon{display:none;font-size:15px;}
+#syncQueueBadge.ok .sq-icon.ok-icon{display:inline;}
+#syncQueueBadge.err .sq-icon.err-icon{display:inline;}
+@keyframes sqSpin{to{transform:rotate(360deg);}}
+#syncQueueBadge .sq-count{
+  font-size:10px;font-weight:800;background:var(--blue);color:#fff;
+  border-radius:999px;padding:1px 7px;margin-left:2px;
+}
 .ham-wrap{position:relative;}
 .ham-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
 .ham-btn:hover{background:rgba(255,255,255,.28);}
@@ -539,6 +565,14 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div id="syncQueueBadge">
+  <div class="sq-spinner"></div>
+  <span class="sq-icon ok-icon">✅</span>
+  <span class="sq-icon err-icon">⚠️</span>
+  <span id="sqText">Guardando...</span>
+  <span class="sq-count" id="sqCount" style="display:none;"></span>
+</div>
 <div id="printArea"></div>
 
 <script>
@@ -698,7 +732,7 @@ function saveHistToLocal() {
 let currentStudent=null, appData={}, config={};
 let pendingDeleteAction=null, loginMode='name';
 let currentZoom=85, currentCycleId=null;
-let autoSyncTimer=null, autoSyncInterval=null, isAutoSyncing=false;
+let autoSyncTimer=null;
 let editModeActive=false;
 let calFilter='all', asistFilter='all', histFilter='all';
 
@@ -1095,7 +1129,7 @@ async function ddConfirm() {
       if (delAsistencias) { sd.asistencias = {}; }
       // Subir el estado limpio al servidor
       if (name === currentStudent) {
-        _markDirty();
+        triggerAutoSync();
         await syncToSheets(true);
       } else if (config.appsScriptUrl) {
         // Para otros estudiantes: enviar payload vacío
@@ -1334,16 +1368,14 @@ async function selectStudent(name) {
     document.getElementById('syncStatus').textContent = '⚠️ Sin datos del servidor';
     showToast('⚠️ No se pudo descargar tu información. Revisa tu conexión y usa "Refrescar desde Sheets" antes de editar.', 'error');
     renderPensum();
-    _pendingUpload = false;
     autoFetchInterval = setInterval(() => {
-      if (!_isFetching && !_isSyncing && currentStudent && config.appsScriptUrl) _silentFetch();
-    }, 2500);
+      if (!_isFetching && !_syncInFlight && currentStudent && config.appsScriptUrl) _silentFetch();
+    }, 3000);
     return;
   }
 
   if (config.appsScriptUrl) document.getElementById('syncStatus').textContent = '✓ Sheets activo';
   renderPensum();
-  _pendingUpload = false; // recién bajamos todo, no hay nada pendiente
   startAutoSyncInterval();
 }
 
@@ -1593,61 +1625,130 @@ function saveLocal(triggerSync=true) {
   sd.undoStack=undoStack.slice(-MAX_HIST);
   // NO guardamos en localStorage — Sheets es la única fuente de verdad
   document.getElementById('autoSaveTick').textContent='💾 '+new Date().toLocaleTimeString();
-  _markDirty(); // marcar que hay cambios por subir
   if(triggerSync) triggerAutoSync();
 }
 
 function triggerAutoSync() {
   if(!config.appsScriptUrl||!currentStudent) return;
-  _markDirty();
+  _queuePendingSync++;
+  _updateSyncBadge('pending');
   clearTimeout(autoSyncTimer);
-  const st=document.getElementById('syncStatus');
-  if(st) st.textContent='⏳ Guardando...';
-  autoSyncTimer=setTimeout(()=>syncToSheets(true),400);
+  autoSyncTimer=setTimeout(()=>_enqueueSync(),350);
 }
 
-// ── FLAGS SEPARADOS para subida y bajada ──
+// ══════════════════════════════════════════════════════════════
+// COLA DE SINCRONIZACIÓN SERIALIZADA
+// Garantiza que solo haya UNA subida "en vuelo" a la vez.
+// Si llegan más cambios mientras se sube, se acumulan y se
+// procesan en la SIGUIENTE subida (nunca en paralelo), así que
+// ninguna subida puede pisar a otra con datos más viejos.
+// ══════════════════════════════════════════════════════════════
+let _queuePendingSync = 0;   // cambios acumulados sin subir todavía
+let _syncInFlight = false;   // hay una subida en curso ahora mismo
+let _syncQueueRunner = null; // referencia al setTimeout de reintento
+
+function _updateSyncBadge(state, extra) {
+  const badge = document.getElementById('syncQueueBadge');
+  const text  = document.getElementById('sqText');
+  const count = document.getElementById('sqCount');
+  if (!badge) return;
+  badge.classList.remove('ok','err');
+  badge.classList.add('show');
+
+  if (state === 'pending') {
+    text.textContent = 'Cambios pendientes...';
+    count.style.display = 'none';
+  } else if (state === 'uploading') {
+    text.textContent = 'Guardando en Sheets...';
+    count.style.display = 'none';
+  } else if (state === 'ok') {
+    badge.classList.add('ok');
+    text.textContent = '✅ Datos subidos correctamente';
+    count.style.display = 'none';
+    clearTimeout(_syncBadgeHideTimer);
+    _syncBadgeHideTimer = setTimeout(() => { badge.classList.remove('show'); }, 2200);
+  } else if (state === 'err') {
+    badge.classList.add('err');
+    text.textContent = '⚠️ Error al guardar — reintentando...';
+    count.style.display = 'none';
+  }
+
+  if (extra && extra.queued > 0) {
+    count.style.display = 'inline';
+    count.textContent = '+' + extra.queued;
+  }
+}
+let _syncBadgeHideTimer = null;
+
+async function _enqueueSync() {
+  if (_syncInFlight) return;
+  if (_queuePendingSync <= 0) return;
+  _syncInFlight = true;
+
+  while (_queuePendingSync > 0) {
+    _queuePendingSync = 0;
+    _updateSyncBadge('uploading');
+    const st = document.getElementById('syncStatus');
+    if (st) st.textContent = '⏳ Subiendo...';
+
+    let ok = false;
+    let attempts = 0;
+    while (!ok && attempts < 3) {
+      attempts++;
+      try {
+        await syncToSheets(true);
+        ok = true;
+      } catch (e) {
+        if (attempts < 3) {
+          _updateSyncBadge('err');
+          await new Promise(r => setTimeout(r, 900 * attempts));
+        }
+      }
+    }
+
+    if (ok) {
+      if (_queuePendingSync > 0) {
+        _updateSyncBadge('uploading', { queued: _queuePendingSync });
+      } else {
+        _updateSyncBadge('ok');
+      }
+    } else {
+      _updateSyncBadge('err');
+      showToast('⚠️ No se pudo guardar después de varios intentos. Verifica tu conexión.', 'error');
+      break;
+    }
+  }
+
+  _syncInFlight = false;
+}
+
+// ── FLAGS para la bajada (descarga) ──
 let autoFetchInterval = null;
-let _isSyncing  = false;  // flag para SUBIR
-let _isFetching = false;  // flag para BAJAR (INDEPENDIENTE)
-let _pendingUpload = false; // hay cambios sin subir
+let _isFetching = false;  // flag para BAJAR
 let _calendarModalOpen = false; // evita que el auto-fetch reescriba el calendario mientras el usuario lo edita
 
 function startAutoSyncInterval() {
   if (!config.appsScriptUrl || !currentStudent) return;
   stopAutoSyncInterval();
 
-  // SUBIR a Sheets cada 1.5s (solo si hay cambios pendientes)
-  autoSyncInterval = setInterval(async () => {
-    if (_isSyncing || _isFetching || !_pendingUpload || !currentStudent || !config.appsScriptUrl) return;
-    _isSyncing = true;
-    _pendingUpload = false;
-    try { await syncToSheets(true); } catch(e) { _pendingUpload = true; }
-    finally { _isSyncing = false; }
-  }, 1500);
+  // La SUBIDA ya no usa un interval propio — la gobierna la cola
+  // _enqueueSync(), que se dispara desde triggerAutoSync() cada vez
+  // que hay un cambio real, y se serializa sola (ver más arriba).
 
-  // BAJAR de Sheets cada 2.5s — NUNCA mientras hay una subida en curso,
-  // porque el GS borra y reescribe la hoja (clearContents + setValues),
-  // y leer a mitad de esa operación devuelve datos vacíos/parciales.
+  // BAJAR de Sheets cada 3s — NUNCA mientras hay una subida en curso.
   autoFetchInterval = setInterval(() => {
-    if (!_isFetching && !_isSyncing && currentStudent && config.appsScriptUrl) {
+    if (!_isFetching && !_syncInFlight && currentStudent && config.appsScriptUrl) {
       _silentFetch();
     }
-  }, 2500);
+  }, 3000);
 
   // Primera bajada inmediata al entrar
   setTimeout(() => _silentFetch(), 800);
 }
 
 function stopAutoSyncInterval() {
-  if (autoSyncInterval)  { clearInterval(autoSyncInterval);  autoSyncInterval  = null; }
   if (autoFetchInterval) { clearInterval(autoFetchInterval); autoFetchInterval = null; }
-  _isSyncing = false; _isFetching = false;
-}
-
-// Marcar que hay cambios pendientes de subir
-function _markDirty() {
-  _pendingUpload = true;
+  _isFetching = false;
 }
 
 // ── DESCARGA SILENCIOSA — siempre corre, nunca bloquea la subida ──
@@ -2550,6 +2651,7 @@ async function syncToSheets(isAuto=false){
   }catch(e){
     document.getElementById('syncStatus').textContent='✗ Error subida';
     if(!isAuto) showToast('✗ Error al subir','error');
+    throw e; // re-lanzar para que la cola de sincronización pueda reintentar
   }
 }
 async function fetchFromSheets(silent=false){
