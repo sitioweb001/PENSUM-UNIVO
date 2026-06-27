@@ -100,23 +100,24 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
 @media (max-width:480px){
   #syncQueueBadge{font-size:11px;padding:8px 12px;bottom:64px;}
 }
-/* ── DESTELLO VERDE AL GUARDAR (pantalla completa, sutil) ── */
+/* ── DESTELLO VERDE AL GUARDAR (pantalla completa, más intenso) ── */
 #syncFlash{
   position:fixed; inset:0; z-index:4999; pointer-events:none;
-  background:rgba(16,185,129,.16); opacity:0;
+  background:rgba(16,185,129,.4); opacity:0;
 }
 #syncFlash.flash{
-  animation:syncFlashAnim .9s ease-out;
+  animation:syncFlashAnim .85s ease-out;
 }
 @keyframes syncFlashAnim{
   0%{opacity:0;}
-  15%{opacity:1;}
+  12%{opacity:1;}
+  35%{opacity:.55;}
   100%{opacity:0;}
 }
 .ham-wrap{position:relative;}
 .ham-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
 .ham-btn:hover{background:rgba(255,255,255,.28);}
-.ham-menu{position:absolute;top:46px;right:0;background:var(--modal-bg);border:1px solid var(--gl);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.25);min-width:230px;z-index:500;display:none;overflow:hidden;}
+.ham-menu{position:absolute;top:46px;right:0;background:var(--modal-bg);border:1px solid var(--gl);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.25);min-width:230px;z-index:500;display:none;max-height:calc(100vh - 70px);overflow-y:auto;}
 .ham-menu.open{display:block;}
 .ham-item{padding:10px 16px;display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text);transition:background .15s;}
 .ham-item:hover{background:var(--bg);}
@@ -405,6 +406,7 @@ header{background:var(--hdr);color:#fff;padding:12px 20px;display:flex;align-ite
         <div class="ham-divider"></div>
         <div class="ham-item" onclick="openChangePass()" style="color:#1e3a5f;font-weight:700;">🔑 Cambiar contraseña</div>
         <div class="ham-item" onclick="openDeleteDataModal()" style="color:#dc2626;font-weight:700;">🗑️ Borrar datos</div>
+        <div class="ham-item" onclick="eliminarListaDeCuentas()" style="color:#991b1b;font-weight:700;">🧹 Eliminar lista de cuentas</div>
         <div class="ham-item" onclick="limpiarCache();closeHam()" style="color:#7c3aed;font-weight:700;">🧹 Limpiar caché y recargar</div>
         <div class="ham-divider"></div>
         <div class="ham-item danger" onclick="changeStudent();closeHam()">🚪 Cambiar estudiante</div>
@@ -991,203 +993,41 @@ async function init() {
 }
 
 
-// ══════════════════════════════════════════════════════════════
-// BORRAR DATOS — modal granular por categoría
-// ══════════════════════════════════════════════════════════════
-function openDeleteDataModal() {
+
+// Borra TODA la lista de estudiantes del login.
+// No borra notas/calendario en el servidor — solo el registro de login y
+// las contraseñas, para que cada estudiante deba registrarse de nuevo.
+async function eliminarListaDeCuentas() {
   closeHam();
-  // Cerrar si ya existe
-  const existing = document.getElementById('deleteDataModal');
-  if (existing) { existing.remove(); }
-
-  const students = Object.keys(appData);
-  const studentOpts = students.map(s =>
-    `<option value="${s}">${s}</option>`
-  ).join('');
-
-  const m = document.createElement('div');
-  m.id = 'deleteDataModal';
-  m.style.cssText = 'position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:12px;';
-  m.innerHTML = `
-    <div style="background:var(--modal-bg);border-radius:18px;padding:26px;width:420px;max-width:96vw;
-                max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.35);">
-      <h3 style="margin:0 0 4px;color:#dc2626;font-size:17px;">🗑️ Borrar datos</h3>
-      <p style="margin:0 0 16px;font-size:12px;color:var(--gm);">Selecciona estudiante y qué datos eliminar. Esta acción también borra en el servidor.</p>
-
-      <!-- Selector de estudiante -->
-      <div class="login-field" style="margin-bottom:14px;">
-        <label>Estudiante</label>
-        <select id="ddStudent" onchange="ddUpdateSections()"
-          style="width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--gl);
-                 background:var(--bg);color:var(--text);font-size:14px;">
-          <option value="">-- Selecciona --</option>
-          ${studentOpts}
-          <option value="__all__" style="color:#dc2626;font-weight:700;">⚠️ TODOS los estudiantes</option>
-        </select>
-      </div>
-
-      <!-- Secciones a borrar -->
-      <div id="ddSections" style="display:none;">
-        <p style="font-size:12px;font-weight:700;color:var(--text);margin:0 0 8px;">¿Qué deseas borrar?</p>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
-          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid var(--gl);cursor:pointer;font-size:13px;">
-            <input type="checkbox" id="ddNotas" style="width:16px;height:16px;accent-color:#dc2626;">
-            <span>📊 Notas y cómputos</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid var(--gl);cursor:pointer;font-size:13px;">
-            <input type="checkbox" id="ddCalendario" style="width:16px;height:16px;accent-color:#dc2626;">
-            <span>📅 Eventos del calendario</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid var(--gl);cursor:pointer;font-size:13px;">
-            <input type="checkbox" id="ddCiclos" style="width:16px;height:16px;accent-color:#dc2626;">
-            <span>✅ Ciclos finalizados</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid var(--gl);cursor:pointer;font-size:13px;">
-            <input type="checkbox" id="ddEspecial" style="width:16px;height:16px;accent-color:#dc2626;">
-            <span>⭐ Marcas especiales</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid var(--gl);cursor:pointer;font-size:13px;">
-            <input type="checkbox" id="ddAsistencias" style="width:16px;height:16px;accent-color:#dc2626;">
-            <span>📋 Asistencias</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:2px solid #dc2626;cursor:pointer;font-size:13px;background:rgba(220,38,38,.05);"
-                 onclick="ddToggleAll(this)">
-            <input type="checkbox" id="ddTodo" style="width:16px;height:16px;accent-color:#dc2626;">
-            <span style="color:#dc2626;font-weight:700;">🗑️ TODO (eliminar estudiante completo)</span>
-          </label>
-        </div>
-
-        <div style="display:flex;gap:10px;">
-          <button onclick="ddConfirm()"
-            style="flex:1;padding:11px;background:#dc2626;color:#fff;border:none;border-radius:10px;
-                   font-weight:700;cursor:pointer;font-size:14px;">
-            Borrar seleccionado
-          </button>
-          <button onclick="document.getElementById('deleteDataModal').remove()"
-            style="padding:11px 16px;background:var(--bg);border:1.5px solid var(--gl);
-                   border-radius:10px;cursor:pointer;font-size:14px;">
-            Cancelar
-          </button>
-        </div>
-        <div id="ddMsg" style="margin-top:10px;font-size:12px;text-align:center;display:none;"></div>
-      </div>
-    </div>`;
-  document.body.appendChild(m);
-  // Cerrar al hacer clic fuera
-  m.addEventListener('click', e => { if(e.target===m) m.remove(); });
-}
-
-function ddUpdateSections() {
-  const sel = document.getElementById('ddStudent').value;
-  document.getElementById('ddSections').style.display = sel ? 'block' : 'none';
-}
-
-function ddToggleAll(label) {
-  const cb = document.getElementById('ddTodo');
-  // El check ya cambió, propagar a los demás
-  setTimeout(() => {
-    const checked = cb.checked;
-    ['ddNotas','ddCalendario','ddCiclos','ddEspecial','ddAsistencias'].forEach(id => {
-      document.getElementById(id).checked = checked;
-    });
-  }, 0);
-}
-
-async function ddConfirm() {
-  const student = document.getElementById('ddStudent').value;
-  const delNotas      = document.getElementById('ddNotas').checked;
-  const delCalendario = document.getElementById('ddCalendario').checked;
-  const delCiclos     = document.getElementById('ddCiclos').checked;
-  const delEspecial   = document.getElementById('ddEspecial').checked;
-  const delAsistencias= document.getElementById('ddAsistencias').checked;
-  const delTodo       = document.getElementById('ddTodo').checked;
-  const msg           = document.getElementById('ddMsg');
-
-  const show = (txt, color) => {
-    msg.textContent = txt; msg.style.color = color; msg.style.display = 'block';
-  };
-
-  if (!student) { show('Selecciona un estudiante', '#dc2626'); return; }
-  if (!delNotas && !delCalendario && !delCiclos && !delEspecial && !delAsistencias && !delTodo) {
-    show('Selecciona al menos un tipo de dato', '#dc2626'); return;
-  }
-
-  const targets = student === '__all__' ? Object.keys(appData) : [student];
-  const what = delTodo ? 'TODO el perfil' :
-    [delNotas&&'notas',delCalendario&&'calendario',delCiclos&&'ciclos',
-     delEspecial&&'especiales',delAsistencias&&'asistencias'].filter(Boolean).join(', ');
-
-  const confirmMsg = student === '__all__'
-    ? `¿Borrar ${what} de TODOS los estudiantes (${targets.length})?\nEsto también borrará en el servidor.`
-    : `¿Borrar ${what} de "${student}"?\nEsto también borrará en el servidor.`;
-
-  if (!confirm(confirmMsg)) return;
-  show('⏳ Borrando...', 'var(--gm)');
-
-  for (const name of targets) {
-    if (!appData[name]) continue;
-
-    if (delTodo) {
-      // Eliminar estudiante completo del servidor
-      if (config.appsScriptUrl) {
-        try {
-          await fetch(config.appsScriptUrl, {
-            method:'POST', mode:'no-cors',
-            headers:{'Content-Type':'text/plain'},
-            body: JSON.stringify({ action:'delete_student', student: name })
-          });
-        } catch(e) {}
-      }
-      delete appData[name];
-    } else {
-      const sd = appData[name];
-      if (delNotas)       { sd.notas = {}; }
-      if (delCalendario)  { sd.events = []; }
-      if (delCiclos)      { sd.cyclesDone = {}; }
-      if (delEspecial)    { sd.specialCards = {}; }
-      if (delAsistencias) { sd.asistencias = {}; }
-      // Subir el estado limpio al servidor
-      if (name === currentStudent) {
-        triggerAutoSync();
-        await syncToSheets(true);
-      } else if (config.appsScriptUrl) {
-        // Para otros estudiantes: enviar payload vacío
-        try {
-          await fetch(config.appsScriptUrl, {
-            method:'POST', mode:'no-cors',
-            headers:{'Content-Type':'text/plain'},
-            body: JSON.stringify({
-              student: name,
-              data: [],
-              events: sd.events||[],
-              cyclesDone: sd.cyclesDone||{},
-              asistencias: sd.asistencias||{},
-              specialCards: sd.specialCards||{}
-            })
-          });
-        } catch(e) {}
-      }
-    }
-  }
-
-  // Si el usuario actual fue borrado, volver al login
-  if (delTodo && targets.includes(currentStudent)) {
-    show('✓ Datos borrados. Volviendo al login...', '#10b981');
-    setTimeout(() => {
-      document.getElementById('deleteDataModal').remove();
-      changeStudent();
-    }, 1200);
+  const pw = prompt('Contraseña de administrador para eliminar la lista de cuentas:');
+  if (pw !== '747') {
+    if (pw !== null) showToast('Contraseña incorrecta', 'error');
     return;
   }
+  if (!confirm('¿Eliminar TODA la lista de cuentas?\n\nCada estudiante deberá volver a registrarse con su nombre y contraseña.\nLos datos de notas NO se borran — si alguien vuelve a entrar con el mismo nombre, sus notas reaparecen.')) return;
 
-  // Actualizar vista si el usuario actual fue afectado
-  if (targets.includes(currentStudent)) {
-    renderPensum();
-    updateStats();
+  if (!config.appsScriptUrl) { showToast('No hay Sheets configurado', 'error'); return; }
+
+  _showLoading('Eliminando lista de cuentas...', 'Esto no borra las notas guardadas');
+  try {
+    await fetch(config.appsScriptUrl, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'delete_all_students' })
+    });
+  } catch(e) {}
+  _hideLoading();
+
+  appData = {};
+  if (currentStudent) {
+    currentStudent = null;
+    stopAutoSyncInterval();
+    document.getElementById('appView').style.display = 'none';
+    document.getElementById('bottomBar').style.display = 'none';
+    document.getElementById('loginView').style.display = 'flex';
   }
   renderStudentList();
-  show('✓ Borrado completado', '#10b981');
-  setTimeout(() => document.getElementById('deleteDataModal').remove(), 1500);
+  showToast('✓ Lista de cuentas eliminada — el login está vacío', 'success');
 }
 
 function limpiarCache() {
